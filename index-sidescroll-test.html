@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Toronto Star graphic template</title>
+    <link rel="stylesheet" href="https://misc.thestar.com/interactivegraphic/assets/style.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"> 
+
+<style>
+
+.graphic-wrapper {
+  /* max-width: 660px; */
+}
+
+
+
+
+</style>
+</head>
+<body>
+  <div class="graphic-wrapper graphic-1">
+    <div class="graphic-top">
+        <h2 class="graphic-top__graphic-hed">Add your heading here</h2>
+        <h3 class="graphic-top__graphic-dek">A longer dek could be required to fully explain what the data is. A longer dek could be required to fully explain what the data is.</h3>
+
+        <div class="graphic-legend">
+            <div class="graphic-legend-container">
+                <div class="graphic-legend-dot" id="legend-dot-1"></div><p class="graphic-legend-text">Legend text 1</p>
+            </div>
+            <div class="graphic-legend-container">
+                <div class="graphic-legend-dot" id="legend-dot-2"></div><p class="graphic-legend-text">Legend text 2</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="graphic">
+
+     
+
+  
+
+
+    </div>
+
+
+
+   
+
+    <div class="graphic-bottom">
+        <p class="graphic-bottom__notetext" id="notetext">* Any further note to explain one aspect of the data could go here.</p>
+        <p class="graphic-bottom__graphic-source" id="source">Source: Stats report</p>
+        <p class="graphic-bottom__graphic-byline" id="byline">Toronto Star graphic</p>
+    </div>
+  </div>
+
+<script>
+
+
+    function resize(){
+        var message = {'resize': 
+                  {
+                    'iframe':'graphic-iframe-1',
+                    'height': document.getElementsByClassName('graphic-1')[0].offsetHeight + 20
+                  }
+                };
+       
+        parent.postMessage(message, "*");
+    };
+
+    window.addEventListener('load', function() {
+        resize();
+    });
+
+    window.addEventListener("resize", function(){
+        resize();
+    });
+
+    setTimeout(function() {
+                        resize();
+                    }, 800);
+
+  
+	document.addEventListener("touchstart", function(){}, true);
+
+</script>
+
+<!-- <style>#graphic-iframe-1{padding:0;width:100%;border:0;overflow:hidden;}</style><iframe id="graphic-iframe-1" src="SOURCETKTKTKT" scrolling="no" height="1050" title="embedded content"></iframe> -->
+
+</body>
+</html>
