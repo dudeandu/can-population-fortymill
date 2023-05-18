@@ -8,12 +8,56 @@
     <link rel="stylesheet" href="https://misc.thestar.com/interactivegraphic/assets/style.css">
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"> 
+    
+
+    <!-- Load d3.js & color scale-->
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 
 <style>
 
-.graphic-wrapper {
-  /* max-width: 660px; */
-}
+        /* .graphic-wrapper { */
+        /* max-width: 660px; */
+        /* } */
+
+
+        
+        .vertical-section{
+        /* height: 100vh; */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        }
+
+        main {
+        overflow-x: hidden;
+        display: flex;
+        position: sticky;
+        top:0;
+        }
+
+        h1 {
+        margin: 0;
+        padding: 0;
+        }
+
+        section {
+        min-width: 50vw;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 4ch;
+        }
+
+        #my_dataviz {
+            width: 100%;
+        }
+
+        section:nth-child(even) {
+        background-color: teal;
+        color: white;
+        }
 
 
 
@@ -21,7 +65,7 @@
 </style>
 </head>
 <body>
-  <div class="graphic-wrapper graphic-1">
+  <div class="graphic-wrapper graphic-sidescroll-test">
     <div class="graphic-top">
         <h2 class="graphic-top__graphic-hed">Add your heading here</h2>
         <h3 class="graphic-top__graphic-dek">A longer dek could be required to fully explain what the data is. A longer dek could be required to fully explain what the data is.</h3>
@@ -39,6 +83,48 @@
     <div class="graphic">
 
      
+
+            <div class="vertical-section">
+                <p>
+                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus neque sequi consequatur quibusdam omnis nulla in ullam earum distinctio vitae officia voluptatum explicabo a laboriosam, eos alias rem excepturi cupiditate modi. Deleniti cum itaque facilis veniam repudiandae iure magnam odio placeat quibusdam, at eius? Rem est repudiandae eaque iusto exercitationem necessitatibus ullam consequuntur animi, enim repellat cupiditate aperiam voluptas eligendi dignissimos maiores modi nihil temporibus nostrum tenetur? Sequi in natus, assumenda hic dolorum quam, cum debitis dolor optio ea reprehenderit. Velit illo aperiam consequuntur iure unde, ratione sapiente necessitatibus repudiandae, possimus et nam accusamus quod numquam quas saepe! Obcaecati nulla impedit harum doloremque et id saepe delectus? Qui corporis omnis iste, recusandae ab odio fugiat dolores earum ipsum nam beatae esse consectetur animi vitae quidem, dicta tempore commodi. Quas ex tempora, non officiis dolorum in alias distinctio quibusdam veritatis, reiciendis inventore illum sint vero aliquam quidem eligendi obcaecati? Ad, minima animi, officia cum repudiandae quis nostrum facilis maxime ducimus totam corporis illum quod consequuntur vel. Qui velit nesciunt quas amet earum temporibus atque itaque sunt pariatur modi molestiae, ut illo possimus distinctio dicta tempora autem aut rem deleniti assumenda neque sequi quibusdam. Sint, fuga laudantium aliquam vero nihil, eum perspiciatis perferendis accusamus suscipit tempora saepe eveniet provident magni neque sapiente ratione, fugit maiores aut earum est dolore commodi qui vitae? Placeat repudiandae esse distinctio inventore illum eaque ut corrupti ea, sapiente harum debitis provident ipsa veniam alias tempore quis explicabo nam eius molestias cum quos itaque! Adipisci rerum temporibus obcaecati, nisi ipsum error dolor impedit optio laudantium officia debitis consequuntur atque iusto odio quia perspiciatis eaque? Nulla aperiam, nesciunt eos tenetur iusto aliquid pariatur cupiditate aliquam recusandae. Aut quae nisi inventore expedita, quisquam tempore quas, tempora nesciunt nemo facilis vitae repellat fugiat earum iste adipisci est, eos voluptas accusantium. Reiciendis voluptas sapiente aspernatur culpa. Hic autem impedit possimus, excepturi itaque animi at, laborum voluptas mollitia facilis nihil aperiam recusandae blanditiis reprehenderit eaque earum. Consequatur perferendis quibusdam quae repudiandae velit, odit possimus alias placeat eaque autem atque magnam necessitatibus natus itaque cupiditate, illum minus aut nisi? Quos corrupti doloribus laborum consectetur optio a id veniam, pariatur non? Velit amet explicabo eaque ea, dolore ratione nulla facere accusantium aliquam doloremque rerum officia labore beatae quo corrupti quos nam ducimus aut earum. Dolor reprehenderit blanditiis, vitae quidem perferendis autem ut voluptatibus tempore esse delectus eaque eveniet omnis? Sunt laudantium dolore eveniet illum quo ipsam, facere recusandae ipsa laborum, veniam unde dignissimos ad earum id quasi consequuntur reprehenderit optio aut sit? Perferendis, officiis illo pariatur nihil vel aliquid asperiores temporibus debitis natus ad dolorem illum consequuntur? Dolores nihil aperiam nobis repudiandae excepturi molestias libero quidem ea beatae! Dolorem at cum assumenda similique dolore quis minus cupiditate iste ea. Nihil reiciendis incidunt, voluptate nam excepturi distinctio iste ex non! Ea ad minima tempora odio. Repellendus consectetur soluta nobis, natus minus sapiente eos et reiciendis error facere blanditiis ducimus recusandae praesentium, ipsa fugit libero eligendi. Sunt aliquam voluptatum qui perferendis veritatis ad tempora magnam tenetur doloribus ab. Veritatis nam sequi assumenda odit quos suscipit error nobis maiores inventore, porro, cum repudiandae cumque nesciunt aliquid est eos minus. Consequatur libero sapiente dolore, quae corrupti est? Reiciendis consectetur similique, incidunt dolorem temporibus est dolore maxime, a et rerum esse quae illum eveniet perferendis alias quasi rem minus aut? Consequuntur dignissimos, mollitia quae quidem earum harum dicta, delectus rem tempore, pariatur saepe inventore. Sed dolores, perferendis possimus nemo veritatis velit vitae quasi provident sequi ex suscipit soluta, minima eos iusto consequatur exercitationem? Aut ipsa provident quia esse, non ea eum, nulla totam nesciunt fuga ducimus, natus tempore quidem iste. Quos mollitia beatae, distinctio minima voluptates voluptatibus quaerat quas possimus delectus dolorum qui sit, repudiandae itaque nisi earum sed ullam? Sequi ratione magnam corporis fugit recusandae, distinctio repellendus totam, tempore minus praesentium aspernatur accusamus voluptate quidem, excepturi vel perspiciatis? Obcaecati ex eius earum consectetur repellat explicabo adipisci minima quo consequuntur eum? Possimus rem nihil, dolores, praesentium magnam quod reiciendis esse harum libero quasi est magni veritatis, exercitationem consequatur quaerat enim doloribus minima. Possimus tenetur velit dolorum rem perspiciatis nisi consequuntur, consequatur perferendis, totam ducimus quod dignissimos blanditiis cupiditate quibusdam ullam eos, dolorem animi. Delectus consequuntur distinctio deserunt quisquam pariatur, doloremque tenetur ullam officia molestiae quae, corporis, accusantium iure rem sit officiis illum mollitia repellendus incidunt nisi! Enim rerum dignissimos ullam laborum sed, blanditiis quae a non doloremque nemo atque placeat explicabo obcaecati dolorem esse soluta similique quaerat reprehenderit corrupti officia accusamus voluptatum veritatis! Maiores, debitis. Veritatis maiores reiciendis, quia omnis officia, at amet aspernatur quaerat dolore, repellat dignissimos praesentium minima. Odio itaque consectetur maiores enim laborum beatae, iste dicta? Impedit, ipsam consequuntur, cum dolore veniam ipsum quas corrupti doloribus totam, necessitatibus praesentium accusantium officiis libero excepturi iure voluptate voluptas. Reprehenderit, porro veritatis unde cum similique suscipit voluptatem dicta sapiente esse facilis nostrum sint laudantium natus qui? Doloremque soluta earum laudantium, nobis necessitatibus nulla natus corrupti accusamus doloribus inventore, nam repellendus architecto dolor, voluptates placeat quasi commodi! Ipsa magni esse sint placeat, error architecto tempore harum velit hic dolor, nemo expedita quisquam accusantium iure aliquid eveniet id amet ab similique est quam, dolores iusto odio? Molestias labore dicta iure deleniti beatae rem maxime quia soluta iste, vero, illum quaerat explicabo dolor, accusantium non! Provident aliquid iure ad explicabo. Sed, esse quasi explicabo quo illum dicta. Numquam, tempora eos dolor atque ab vel, labore, laudantium voluptas illum asperiores perferendis officia. Quod reprehenderit praesentium quisquam. Libero suscipit consectetur est id cumque corporis ut? In quam enim eum quia deleniti deserunt consequatur accusamus consequuntur, explicabo repellendus aut, quas beatae voluptate excepturi provident nisi! Dolor alias voluptate consequuntur quidem, porro, veniam deleniti ullam dignissimos perferendis temporibus itaque iste numquam ratione. Quibusdam qui mollitia iste ipsa. Harum quis repellat in minus error expedita iusto! Libero asperiores debitis omnis exercitationem fugiat quae inventore quasi voluptatem dolorum laborum, enim, molestias aliquid recusandae dolore! Reiciendis praesentium enim expedita, quos libero sunt corrupti eum atque, natus provident debitis eaque iste! Labore, cum debitis! Voluptatum, dicta repellendus ea temporibus ipsa perferendis debitis magni provident quos reiciendis deserunt atque vero, perspiciatis dolores libero totam odio velit sequi tempore maxime. Doloribus ullam omnis harum, dolores error corrupti nobis facere dolorem tempore odit ratione iste deleniti, accusamus voluptate pariatur? Aliquam rem maiores in quasi pariatur rerum quis possimus voluptatibus explicabo quaerat adipisci iusto id dicta excepturi nisi nulla, delectus facere repellendus dolorem modi! Porro reprehenderit iste vero vitae nostrum sequi nam eligendi consectetur totam beatae dolorem delectus obcaecati doloremque itaque magni amet nulla, architecto cum placeat, tenetur possimus? Explicabo maxime necessitatibus sint at ea inventore labore totam quaerat voluptatibus, fugit rem quidem mollitia ex dolores deleniti animi, cupiditate assumenda? Vitae cupiditate reprehenderit quibusdam ad? Saepe odio, veritatis id porro molestias iste. Placeat fugiat labore magnam! Tempora iure nemo sapiente. Magni excepturi cumque est iure, ducimus optio dolor, quam harum, cum minima consectetur id placeat debitis sunt labore explicabo? Obcaecati, minima incidunt odio voluptatibus laborum at cum nam non autem odit culpa nemo eligendi quod nostrum ab dolorem repellendus quibusdam error dolor voluptatum unde porro? Eaque itaque nisi doloremque corrupti nam debitis reprehenderit suscipit aperiam! Impedit harum velit numquam, quibusdam atque, laboriosam pariatur sed iusto maxime voluptatibus vero eius autem consequatur! Exercitationem eaque sapiente nobis enim, quis corrupti doloremque cumque, quos at, reprehenderit ducimus. Animi quia est ullam pariatur molestias veritatis possimus autem voluptates mollitia, quod, deserunt, aut officiis. Aspernatur incidunt ab rem exercitationem nulla odio debitis maxime repellendus obcaecati quae eius velit in, enim placeat quasi, commodi itaque quod? Obcaecati modi, veniam facere vero eligendi in dolorum pariatur odio assumenda qui hic earum! Nulla doloribus perspiciatis minima hic corrupti rerum, omnis neque odio unde officia iste repellendus ipsum dicta reprehenderit, explicabo maiores quibusdam. Temporibus eius quasi, provident rerum quae saepe. Error odio aspernatur animi tempora delectus dolorum quam culpa. Placeat rerum reprehenderit quidem expedita perferendis recusandae velit dolores, officia optio exercitationem sequi nesciunt nihil aliquid quasi distinctio! Accusantium corrupti deserunt libero beatae amet aperiam, tempore doloribus magnam magni perspiciatis ipsam cum quam nam repellendus velit repellat repudiandae quibusdam quisquam impedit quia? Aut velit totam doloremque non et dolore iure ab, reprehenderit deleniti reiciendis earum a aspernatur ratione dolorem id nemo. Id, perferendis fugiat harum laudantium eos, et at molestiae illum doloribus nihil cupiditate vitae! Dolores dicta accusantium porro eveniet pariatur, nihil molestiae ullam dignissimos voluptate modi consectetur maiores facere quaerat omnis magni mollitia minus dolore quidem incidunt quae est ratione amet? Nisi quasi dicta explicabo recusandae cumque autem voluptatum. Illum, possimus delectus exercitationem provident fuga distinctio dolore explicabo. Voluptates autem fuga perferendis vero corrupti! Illum cum minus doloribus ex animi. Sint, commodi molestiae perspiciatis nesciunt sunt ipsum non in voluptate facere vitae temporibus pariatur eligendi vero reiciendis quisquam itaque ipsam error laborum hic saepe similique. Alias modi quisquam velit, minus, voluptatibus illum, commodi quasi vitae enim rerum quo blanditiis iste. Optio odio provident est voluptatibus consequuntur nam quidem vero possimus eum, quibusdam harum cupiditate praesentium in dolor aperiam amet, beatae deleniti iste libero! Assumenda reprehenderit a minima sapiente officiis nam itaque commodi earum amet aut blanditiis dignissimos animi, cupiditate at. Voluptatem magnam ullam fuga accusantium modi molestiae nemo id unde iste asperiores officia iusto, cumque eveniet consequatur incidunt! Laborum corrupti excepturi omnis dolor natus, eum rerum earum quae maiores deleniti modi nostrum aperiam voluptate molestiae recusandae sequi. Impedit dolorem tempora, labore excepturi delectus assumenda ex quidem tenetur expedita quia atque, quibusdam sapiente commodi? Vel porro ut exercitationem aut accusamus doloremque voluptates nihil laborum? Expedita quas accusantium nam at reiciendis quasi rerum facere nemo adipisci architecto hic ipsum placeat sequi doloribus earum, mollitia odit quo beatae autem molestiae nesciunt rem vero provident repellat? Necessitatibus architecto debitis ea incidunt ut sapiente in facere totam unde, laboriosam quos ipsa modi praesentium, tempora molestias? Dolorum quis quae suscipit perferendis reiciendis fugit rerum repudiandae, pariatur sit nemo ratione assumenda nam at cumque, earum commodi quisquam doloribus impedit delectus facere necessitatibus vitae quidem. Culpa rerum praesentium, minus, soluta quibusdam obcaecati beatae et tempora fugit, consequatur animi numquam laborum aspernatur odit voluptatum. Ea ut maxime, dolor expedita quidem omnis libero cum itaque reprehenderit! Modi esse rem illum unde praesentium expedita amet debitis. Quos necessitatibus aliquid error quia. Odit voluptatum velit voluptas aliquam amet rerum consequatur similique pariatur saepe tempore. Perferendis quas tempora praesentium natus, dolores molestias corporis eius quaerat doloremque aliquid. Cum perferendis fugit iste fugiat ipsa praesentium natus id. Eos, distinctio? Eveniet mollitia a dolore quam ab minus nemo quo perspiciatis esse, odio, libero doloribus quasi culpa deleniti animi. Architecto fugiat sequi suscipit enim. Laudantium magnam exercitationem doloribus, laboriosam qui nostrum voluptas expedita suscipit quam similique sunt tenetur earum fuga ea maxime recusandae. Corrupti officiis iste dolores consectetur provident amet eum, repellendus inventore natus! Excepturi odit totam harum laudantium ad asperiores enim distinctio. Excepturi esse illo consequatur porro, alias ducimus fugit accusantium voluptatibus quidem quo in suscipit modi quis dolor laboriosam rem officia reiciendis sed reprehenderit beatae quod quaerat accusamus. Placeat reprehenderit eius iusto ratione natus. Ipsa dignissimos error voluptatum aperiam commodi enim architecto maxime! Repudiandae impedit enim voluptatum eligendi libero id quasi atque iusto rem officiis eos, dignissimos incidunt maiores magni soluta necessitatibus veniam facilis ullam error mollitia quod, commodi aperiam, fugit ea? Qui fugiat temporibus debitis nam exercitationem hic natus aspernatur quis, earum fuga? Facere consectetur cupiditate veniam quibusdam minus expedita, numquam consequatur voluptates et, a impedit atque ea ab aperiam quasi totam aspernatur reprehenderit nobis quae! Eius illo, earum possimus nulla dolorem amet dolorum facilis quo vitae ea doloremque officia modi cumque iusto. Quaerat quod laboriosam atque perspiciatis. Aliquid deleniti impedit quae laborum est voluptate molestiae, dolorum odio, iure deserunt consequatur reiciendis tempora fuga animi officia. A aut voluptate iusto quaerat eum? Architecto vel ratione vero nihil quo, accusamus fugit asperiores, facere, necessitatibus unde voluptates nobis dolore nemo! Obcaecati consequatur quod earum ullam, ea nostrum incidunt perspiciatis culpa quas ratione ipsa aspernatur sit eaque, nulla totam iste saepe debitis dignissimos optio iusto rem quia ipsum itaque. Unde cumque similique facere reiciendis amet et aliquam eos obcaecati aut officiis, veritatis, neque maiores qui illum accusantium odit vel laborum laboriosam quos praesentium sit repellat officia eaque perspiciatis. Qui fugit nam molestias sint placeat, ea facere adipisci facilis saepe esse at sunt aliquam. Illum quas necessitatibus, mollitia tenetur aut amet non architecto, repellat commodi deleniti fuga itaque, adipisci earum sapiente minus qui sequi vero illo autem modi natus molestiae? Accusamus numquam laboriosam quis cum reprehenderit nihil voluptas, inventore aliquid maxime dolor perspiciatis laudantium, facilis at adipisci quibusdam nam recusandae nobis, in nesciunt animi fugiat nisi voluptatum odit libero! Consectetur ut quis tempore commodi molestiae sit et doloremque, magni nihil sunt soluta asperiores ex perferendis minus eum. Optio ea facere ipsum sit quos id, nobis fugiat! Cum quia quam, iusto eos vero enim rem ea dolor nostrum deleniti optio maxime quod delectus asperiores, inventore quas repudiandae explicabo distinctio voluptas autem aut voluptatibus ullam aliquid ipsa! Adipisci nulla, omnis minus aliquid et voluptates culpa, in enim maiores ea commodi non facere? Minus reiciendis ad voluptate. Amet consequatur modi repudiandae beatae quod ipsa maxime culpa sed inventore doloremque autem ad, accusamus perferendis sit obcaecati consectetur molestiae eligendi. Perspiciatis error consectetur adipisci nesciunt cum illo, iste, praesentium molestias dolorum commodi nobis facere pariatur asperiores provident nulla, vero debitis laudantium. Aspernatur aperiam quod dolorum debitis ipsam modi facilis beatae vero tempore, atque aut vel nulla qui assumenda, ad numquam magni cupiditate in dolor animi ipsum excepturi deserunt. Itaque quo minus id est dolore sint culpa, atque quis. Dicta assumenda debitis nulla fuga ea doloremque soluta, accusantium possimus vel et doloribus, quo quis unde explicabo quidem nemo dolore similique autem ipsa sint? Explicabo qui similique modi veniam odit eius corporis. Deserunt maxime alias perspiciatis eius pariatur labore velit, mollitia sequi consequatur nihil reprehenderit voluptatum expedita, porro eligendi debitis sapiente! Delectus, aspernatur! Quae deserunt culpa hic, fuga distinctio possimus repudiandae debitis dicta molestiae, exercitationem nesciunt error maiores aliquid, neque dignissimos. Consectetur fuga adipisci, quia iste illo nihil expedita officia eos, quibusdam suscipit saepe eum. Numquam totam quo esse placeat voluptate assumenda tenetur sapiente temporibus id, facilis quisquam repellat nesciunt. Vitae pariatur dicta reprehenderit facere accusamus veniam nemo dolore iusto ad architecto reiciendis libero, unde illum omnis vero quas ullam aut velit est nostrum. Asperiores consequatur quis dolore accusamus voluptas qui, quod nihil corporis ut quisquam totam dolores dolor. Harum cupiditate itaque nisi? Nemo, minima ipsa! Eos, doloremque autem et deleniti reprehenderit tempora necessitatibus eius illum totam quae dignissimos itaque quia, adipisci placeat neque qui, atque libero? Accusamus corporis architecto ut exercitationem dolorum! Sunt a quis mollitia corporis nulla, saepe, harum inventore ex voluptatum quod vel natus accusantium? Assumenda, omnis dolor veniam modi nobis quaerat laudantium cum porro accusantium iure officia nesciunt consequuntur molestias. Ipsa molestias placeat explicabo dolorem beatae nam laborum officia facilis fuga reprehenderit numquam perferendis, tempore quaerat obcaecati doloribus magni laudantium similique voluptates ullam nemo consequatur corrupti sed quia nihil. Commodi eos, necessitatibus ea veritatis provident magnam nisi quas obcaecati suscipit libero. Commodi esse quibusdam maiores sunt harum. Amet aspernatur ab facere totam est nisi. Provident id quas facere quis dolore ad suscipit, sequi repellendus. Laudantium impedit tempora incidunt perferendis animi placeat in eveniet dolores natus nihil, pariatur autem tenetur nisi facilis. Est hic quae quasi esse repellat debitis porro modi dolor. Vel odit dolores repellendus. Iste dolores similique unde molestiae, dolore doloremque voluptatem quam eius nam quae. Aperiam cumque illo repellendus minus, error explicabo accusamus pariatur eum nisi quo quibusdam dolore nihil corrupti, id eligendi, cum atque voluptatibus praesentium voluptates facere voluptatum sunt aliquid unde quisquam. Asperiores, quidem recusandae qui quo velit aliquid eligendi modi ipsa, quam ipsum necessitatibus veniam cumque harum autem esse dolor a ut provident laboriosam molestias deleniti debitis consequatur, quaerat eaque? Odit hic ipsum placeat vel, suscipit consequuntur vitae vero error adipisci culpa officia quidem officiis veritatis corporis modi aliquam natus, doloremque, et harum dolorum! Laborum iste ipsa saepe rerum quia eaque consequatur. Non, sequi dicta. Sed iusto consectetur eveniet repellendus quia cum accusamus necessitatibus adipisci, ipsum odio consequatur, maiores nostrum laudantium cupiditate consequuntur fuga recusandae nemo ratione officia odit commodi quibusdam maxime voluptatum labore? Laboriosam ab quos quo suscipit ullam! Maxime ratione dignissimos aliquam, vel necessitatibus eveniet asperiores illum earum dicta obcaecati tempore animi hic non excepturi! Inventore, saepe qui. Non quisquam, impedit rerum repellat obcaecati eos architecto. Enim totam, modi ipsum saepe maxime culpa deserunt nulla quo quas error nemo dolorem incidunt doloribus quasi, quia omnis dolore! Corrupti alias saepe ab aliquid, quis itaque animi architecto id officiis necessitatibus a obcaecati optio commodi voluptas ea vero possimus quisquam atque placeat, sit eveniet ad fugit sapiente. Illum non, et ex debitis ullam dolore cumque laudantium corrupti distinctio tempora optio itaque, voluptatem in nihil vel laborum. Aliquam, cupiditate doloremque laudantium tenetur ipsam sapiente, voluptatem nobis mollitia repellendus qui molestias fugiat excepturi sunt. Soluta, praesentium corporis asperiores accusamus illum, nemo delectus ipsa debitis placeat aliquam explicabo deleniti iste officia, eligendi tempora quisquam pariatur et. Architecto natus eum esse adipisci ad aliquam iusto soluta. Illo eius illum tempore, ut tempora quia eligendi neque eum nemo labore, molestias beatae. Placeat in omnis quam! Ad sint distinctio quisquam saepe explicabo omnis nisi quam eum. Consequatur voluptatibus dolores, quas ratione placeat voluptatum porro a aspernatur perferendis cupiditate omnis sunt, quia, eos itaque molestiae sit! Dolore facere unde veniam accusamus iste perspiciatis aliquid doloribus, corporis velit iure praesentium quaerat aliquam perferendis at laboriosam dolores atque ipsam molestiae itaque incidunt sed eius. Dignissimos quam beatae labore tenetur delectus rerum repellat laudantium! Aut at quis exercitationem id cupiditate minima vitae consequuntur? Eum voluptatum alias ipsa molestiae deserunt harum repudiandae tenetur facere dignissimos! In, eius ullam. Natus laudantium nesciunt soluta minima accusamus sed iure voluptatum alias asperiores eius dolores officia dolore aspernatur, deleniti dolor impedit perferendis nihil. Adipisci nam quis eius amet impedit sint ipsam corporis atque at beatae asperiores numquam dolorum perspiciatis quos, vel, quaerat quas. Distinctio dolorem aliquid sint repellat pariatur error suscipit facilis sapiente mollitia alias amet commodi ex officiis cupiditate, provident vitae perferendis iste laboriosam blanditiis quas tenetur natus excepturi, temporibus id. Exercitationem explicabo maxime voluptates, rem cupiditate minima recusandae voluptas sunt modi tenetur suscipit!
+                </p>
+            </div>
+            <div class="sticky-container">
+            <main>
+                <section>
+                <!-- <h1>Beep</h1>
+                </section>
+                <section>
+                <h1>Boop</h1>
+                </section>
+                <section>
+                <h1>Boooom</h1>
+                </section>
+                <section>
+                <h1>The End</h1> -->
+                    <div id="my_dataviz"></div>
+                </section>
+            </main>
+            </div>
+            <div class="vertical-section">
+            Content Below
+            </div>
+            <div class="sticky-container">
+            <main>
+                <section>
+                <h1>Beep</h1>
+                </section>
+                <section>
+                <h1>Boop</h1>
+                </section>
+                <section>
+                <h1>Boooom</h1>
+                </section>
+                <section>
+                <h1>The End</h1>
+                </section>
+            </main>
+            </div>
 
   
 
@@ -58,12 +144,269 @@
 
 <script>
 
+    
+
+    /**
+        * By Alvaro Trigo 
+        * Follow me on Twitter: https://twitter.com/imac2
+        */
+        (function(){
+            init();
+
+            var g_containerInViewport;
+            function init(){
+                buildChart();
+                setStickyContainersSize();
+                bindEvents();
+            }
+
+            function bindEvents(){
+                window.addEventListener("wheel", wheelHandler);        
+            }
+
+            function setStickyContainersSize(){
+                document.querySelectorAll('.sticky-container').forEach(function(container){
+                    const stikyContainerHeight = container.querySelector('main').scrollWidth;
+                    container.setAttribute('style', 'height: ' + stikyContainerHeight + 'px');
+                });
+            }
+
+            function isElementInViewport (el) {
+                const rect = el.getBoundingClientRect();
+                return rect.top <= 0 && rect.bottom > document.documentElement.clientHeight;
+            }
+
+            function wheelHandler(evt){
+                
+                const containerInViewPort = Array.from(document.querySelectorAll('.sticky-container')).filter(function(container){
+                    return isElementInViewport(container);
+                })[0];
+
+                if(!containerInViewPort){
+                    return;
+                }
+
+                var isPlaceHolderBelowTop = containerInViewPort.offsetTop < document.documentElement.scrollTop;
+                var isPlaceHolderBelowBottom = containerInViewPort.offsetTop + containerInViewPort.offsetHeight > document.documentElement.scrollTop;
+                let g_canScrollHorizontally = isPlaceHolderBelowTop && isPlaceHolderBelowBottom;
+
+                if(g_canScrollHorizontally){
+                    containerInViewPort.querySelector('main').scrollLeft += evt.deltaY;
+                }
+            }
+
+            function buildChart(){
+                // set the dimensions and margins of the graph
+                var margin = {top: 60, right: 230, bottom: 50, left: 50},
+                    width = 6600 - margin.left - margin.right,
+                    height = 400 - margin.top - margin.bottom;
+
+                // append the svg object to the body of the page
+                var svg = d3.select("#my_dataviz")
+                .append("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                    .attr("transform",
+                        "translate(" + margin.left + "," + margin.top + ")");
+
+                // Parse the Data
+                d3.csv("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/5_OneCatSevNumOrdered_wide.csv", function(data) {
+
+
+                //////////
+                // GENERAL //
+                //////////
+
+                // List of groups = header of the csv files
+                var keys = data.columns.slice(1)
+
+                // color palette
+                var color = d3.scaleOrdinal()
+                    .domain(keys)
+                    .range(d3.schemeSet2);
+
+                //stack the data?
+                var stackedData = d3.stack()
+                    .keys(keys)
+                    (data)
+
+
+
+                //////////
+                // AXIS //
+                //////////
+
+                // Add X axis
+                var x = d3.scaleLinear()
+                    .domain(d3.extent(data, function(d) { return d.year; }))
+                    .range([ 0, width ]);
+                var xAxis = svg.append("g")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(d3.axisBottom(x).ticks(5))
+
+                // Add X axis label:
+                svg.append("text")
+                    .attr("text-anchor", "end")
+                    .attr("x", width)
+                    .attr("y", height+40 )
+                    .text("Time (year)");
+
+                // Add Y axis label:
+                svg.append("text")
+                    .attr("text-anchor", "end")
+                    .attr("x", 0)
+                    .attr("y", -20 )
+                    .text("# of baby born")
+                    .attr("text-anchor", "start")
+
+                // Add Y axis
+                var y = d3.scaleLinear()
+                    .domain([0, 200000])
+                    .range([ height, 0 ]);
+                svg.append("g")
+                    .call(d3.axisLeft(y).ticks(5))
+
+
+
+                //////////
+                // BRUSHING AND CHART //
+                //////////
+
+                // Add a clipPath: everything out of this area won't be drawn.
+                var clip = svg.append("defs").append("svg:clipPath")
+                    .attr("id", "clip")
+                    .append("svg:rect")
+                    .attr("width", width )
+                    .attr("height", height )
+                    .attr("x", 0)
+                    .attr("y", 0);
+
+                // Add brushing
+                var brush = d3.brushX()                 // Add the brush feature using the d3.brush function
+                    .extent( [ [0,0], [width,height] ] ) // initialise the brush area: start at 0,0 and finishes at width,height: it means I select the whole graph area
+                    .on("end", updateChart) // Each time the brush selection changes, trigger the 'updateChart' function
+
+                // Create the scatter variable: where both the circles and the brush take place
+                var areaChart = svg.append('g')
+                    .attr("clip-path", "url(#clip)")
+
+                // Area generator
+                var area = d3.area()
+                    .x(function(d) { return x(d.data.year); })
+                    .y0(function(d) { return y(d[0]); })
+                    .y1(function(d) { return y(d[1]); })
+
+                // Show the areas
+                areaChart
+                    .selectAll("mylayers")
+                    .data(stackedData)
+                    .enter()
+                    .append("path")
+                    .attr("class", function(d) { return "myArea " + d.key })
+                    .style("fill", function(d) { return color(d.key); })
+                    .attr("d", area)
+
+                // Add the brushing
+                areaChart
+                    .append("g")
+                    .attr("class", "brush")
+                    .call(brush);
+
+                var idleTimeout
+                function idled() { idleTimeout = null; }
+
+                // A function that update the chart for given boundaries
+                function updateChart() {
+
+                    extent = d3.event.selection
+
+                    // If no selection, back to initial coordinate. Otherwise, update X axis domain
+                    if(!extent){
+                    if (!idleTimeout) return idleTimeout = setTimeout(idled, 350); // This allows to wait a little bit
+                    x.domain(d3.extent(data, function(d) { return d.year; }))
+                    }else{
+                    x.domain([ x.invert(extent[0]), x.invert(extent[1]) ])
+                    areaChart.select(".brush").call(brush.move, null) // This remove the grey brush area as soon as the selection has been done
+                    }
+
+                    // Update axis and area position
+                    xAxis.transition().duration(1000).call(d3.axisBottom(x).ticks(5))
+                    areaChart
+                    .selectAll("path")
+                    .transition().duration(1000)
+                    .attr("d", area)
+                    }
+
+
+
+                    //////////
+                    // HIGHLIGHT GROUP //
+                    //////////
+
+                    // What to do when one group is hovered
+                    var highlight = function(d){
+                    // console.log(d)
+                    // reduce opacity of all groups
+                    d3.selectAll(".myArea").style("opacity", .1)
+                    // expect the one that is hovered
+                    d3.select("."+d).style("opacity", 1)
+                    }
+
+                    // And when it is not hovered anymore
+                    var noHighlight = function(d){
+                    d3.selectAll(".myArea").style("opacity", 1)
+                    }
+
+
+
+                    //////////
+                    // LEGEND //
+                    //////////
+
+                    // Add one dot in the legend for each name.
+                    var size = 20
+                    svg.selectAll("myrect")
+                    .data(keys)
+                    .enter()
+                    .append("rect")
+                        .attr("x", 400)
+                        .attr("y", function(d,i){ return 10 + i*(size+5)}) // 100 is where the first dot appears. 25 is the distance between dots
+                        .attr("width", size)
+                        .attr("height", size)
+                        .style("fill", function(d){ return color(d)})
+                        .on("mouseover", highlight)
+                        .on("mouseleave", noHighlight)
+
+                    // Add one dot in the legend for each name.
+                    svg.selectAll("mylabels")
+                    .data(keys)
+                    .enter()
+                    .append("text")
+                        .attr("x", 400 + size*1.2)
+                        .attr("y", function(d,i){ return 10 + i*(size+5) + (size/2)}) // 100 is where the first dot appears. 25 is the distance between dots
+                        .style("fill", function(d){ return color(d)})
+                        .text(function(d){ return d})
+                        .attr("text-anchor", "left")
+                        .style("alignment-baseline", "middle")
+                        .on("mouseover", highlight)
+                        .on("mouseleave", noHighlight)
+
+                })
+            }
+        })();
+
+
+
+
+
+
 
     function resize(){
         var message = {'resize': 
                   {
-                    'iframe':'graphic-iframe-1',
-                    'height': document.getElementsByClassName('graphic-1')[0].offsetHeight + 20
+                    'iframe':'graphic-iframe-sidescroll-test',
+                    'height': document.getElementsByClassName('graphic-sidescroll-test')[0].offsetHeight + 20
                   }
                 };
        
@@ -87,7 +430,7 @@
 
 </script>
 
-<!-- <style>#graphic-iframe-1{padding:0;width:100%;border:0;overflow:hidden;}</style><iframe id="graphic-iframe-1" src="SOURCETKTKTKT" scrolling="no" height="1050" title="embedded content"></iframe> -->
+<!-- <style>#graphic-iframe-sidescroll-test{padding:0;width:100%;border:0;overflow:hidden;}</style><iframe id="graphic-iframe-sidescroll-test" src="https://misc.thestar.com/interactivegraphic/2023/05-may/00-sidescoll-test/index-sidescroll-test.html" scrolling="no" height="1050" title="embedded content"></iframe> -->
 
 </body>
 </html>

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Toronto Star graphic template</title>
+    <link rel="stylesheet" href="https://misc.thestar.com/interactivegraphic/assets/style.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"> 
+    
+
+    <!-- Load d3.js & color scale-->
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+
+<style>
+
+        /* .graphic-wrapper { */
+        /* max-width: 660px; */
+        /* } */
+
+
+
+
+
+
+</style>
+</head>
+<body>
+  <div class="graphic-wrapper graphic-sidescroll-test">
+    <div class="graphic-top">
+        <h2 class="graphic-top__graphic-hed">Add your heading here</h2>
+        <h3 class="graphic-top__graphic-dek">A longer dek could be required to fully explain what the data is. A longer dek could be required to fully explain what the data is.</h3>
+
+        <div class="graphic-legend">
+            <div class="graphic-legend-container">
+                <div class="graphic-legend-dot" id="legend-dot-1"></div><p class="graphic-legend-text">Legend text 1</p>
+            </div>
+            <div class="graphic-legend-container">
+                <div class="graphic-legend-dot" id="legend-dot-2"></div><p class="graphic-legend-text">Legend text 2</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="graphic">
+
+     
+
+        <div id="chart1"></div>
+
+  
+
+
+    </div>
+
+
+
+   
+
+    <div class="graphic-bottom">
+        <p class="graphic-bottom__notetext" id="notetext">* Any further note to explain one aspect of the data could go here.</p>
+        <p class="graphic-bottom__graphic-source" id="source">Source: Stats report</p>
+        <p class="graphic-bottom__graphic-byline" id="byline">Toronto Star graphic</p>
+    </div>
+  </div>
+
+<script>
+
+
+    const populationApp = {}
+
+    populationApp.parseDate = d3.timeParse("%Y-%m-%d");
+    // populationApp.parseDate = d3.timeParse("%b %Y");
+    populationApp.formatTime = d3.timeFormat("%b %e, %Y");
+    
+    populationApp.buildChart = () => {
+        
+        d3.select('#chart1').html('')
+        const chartWidth =  parseInt(d3.select('#chart1').style('width'))
+        
+        if (chartWidth >= 695) {
+            //do something here on mobile versions
+        }
+
+        // set the dimensions and margins of the graph
+        var margin = {top: 100, right: 30, bottom: 40, left: 120},
+            width = chartWidth - margin.left - margin.right,
+            height = 300 - margin.top - margin.bottom;
+
+        // append the svg object to the body of the page
+        var svg = d3.select("#chart1")
+        .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+            .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+
+        //Read the data
+        d3.csv("./data/can-data-1946-2022.csv",function(data) {
+        
+        data.forEach(function(d) {
+            d.Births = +d.Births
+            d.Canada = +d.Canada
+            d.Deaths = +d.Deaths
+            d.imigration = +d.imigration
+            d.emigration = +d.emigration
+            d.date = populationApp.parseDate(d.time)
+            d.growth = d.Births + d.imigration
+            d.decline = d.Deaths + d.emigration
+        });
+         
+        console.log(data)
+
+       //////////
+        // GENERAL //
+        //////////
+
+        // List of groups = header of the csv files
+        // var keys = data.columns.slice(1)
+        var keys = ["Births","imigration"]
+        
+        // color palette
+        var color = d3.scaleOrdinal()
+        .domain(keys)
+        .range(d3.schemeSet2);
+        
+        //stack the data?
+        var stackedData = d3.stack()
+        .keys(keys)
+        (data)
+        
+                console.log(stackedData)
+
+        //////////
+        // AXIS //
+        //////////
+
+        // Add X axis --> it is a date format
+        var x = d3.scaleTime()
+            .domain(d3.extent(data, function(d) { return d.date; }))
+            .range([ 0, width ]);
+        var xAxis = svg.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x).ticks(5))
+
+        console.log(d3.extent(data, function(d) { return d.date; }))
+
+        // // Add X axis label:
+        // svg.append("text")
+        //     .attr("text-anchor", "end")
+        //     .attr("x", width)
+        //     .attr("y", height+40 )
+        //     .text("Time (year)");
+
+        // // Add Y axis label:
+        // svg.append("text")
+        //     .attr("text-anchor", "end")
+        //     .attr("x", 0)
+        //     .attr("y", -20 )
+        //     .text("# of baby born")
+        //     .attr("text-anchor", "start")
+
+        // Add Y axis
+        var y = d3.scaleLinear()
+        .domain([0, d3.max(data, function(d) { return d.imigration; })])
+        .range([ height, 0 ]);
+        svg.append("g")
+        .call(d3.axisLeft(y).ticks(5))
+
+
+
+        //////////
+        // BRUSHING AND CHART //
+        //////////
+
+        // Add a clipPath: everything out of this area won't be drawn.
+        var clip = svg.append("defs").append("svg:clipPath")
+            .attr("id", "clip")
+            .append("svg:rect")
+            .attr("width", width )
+            .attr("height", height )
+            .attr("x", 0)
+            .attr("y", 0);
+
+        // Add brushing
+        var brush = d3.brushX()                 // Add the brush feature using the d3.brush function
+            .extent( [ [0,0], [width,height] ] ) // initialise the brush area: start at 0,0 and finishes at width,height: it means I select the whole graph area
+            .on("end", updateChart) // Each time the brush selection changes, trigger the 'updateChart' function
+
+        // Create the scatter variable: where both the circles and the brush take place
+        var areaChart = svg.append('g')
+        .attr("clip-path", "url(#clip)")
+
+        // Area generator
+        var area = d3.area()
+        .x(function(d) { return x(d.data.date); })
+        .y0(function(d) { return y(d[0]); })
+        .y1(function(d) { return y(d[1]); })
+
+        // Show the areas
+        areaChart
+        .selectAll("mylayers")
+        .data(stackedData)
+        .enter()
+        .append("path")
+            .attr("class", function(d) { return "myArea " + d.key })
+            .style("fill", function(d) { return color(d.key); })
+            .attr("d", area)
+
+        // Add the brushing
+        areaChart
+        .append("g")
+            .attr("class", "brush")
+            .call(brush);
+
+        var idleTimeout
+        function idled() { idleTimeout = null; }
+
+        // A function that update the chart for given boundaries
+        function updateChart() {
+
+        extent = d3.event.selection
+
+        // If no selection, back to initial coordinate. Otherwise, update X axis domain
+        if(!extent){
+            if (!idleTimeout) return idleTimeout = setTimeout(idled, 350); // This allows to wait a little bit
+            x.domain(d3.extent(data, function(d) { return d.year; }))
+        }else{
+            x.domain([ x.invert(extent[0]), x.invert(extent[1]) ])
+            areaChart.select(".brush").call(brush.move, null) // This remove the grey brush area as soon as the selection has been done
+        }
+
+        // Update axis and area position
+        xAxis.transition().duration(1000).call(d3.axisBottom(x).ticks(5))
+        areaChart
+            .selectAll("path")
+            .transition().duration(1000)
+            .attr("d", area)
+        }
+
+
+
+        //////////
+        // HIGHLIGHT GROUP //
+        //////////
+
+        // What to do when one group is hovered
+        var highlight = function(d){
+            console.log(d)
+            // reduce opacity of all groups
+            d3.selectAll(".myArea").style("opacity", .1)
+            // expect the one that is hovered
+            d3.select("."+d).style("opacity", 1)
+        }
+
+        // And when it is not hovered anymore
+        var noHighlight = function(d){
+            d3.selectAll(".myArea").style("opacity", 1)
+        }
+
+
+
+        //////////
+        // LEGEND //
+        //////////
+
+        // // Add one dot in the legend for each name.
+        // var size = 20
+        // svg.selectAll("myrect")
+        //     .data(keys)
+        //     .enter()
+        //     .append("rect")
+        //     .attr("x", 400)
+        //     .attr("y", function(d,i){ return 10 + i*(size+5)}) // 100 is where the first dot appears. 25 is the distance between dots
+        //     .attr("width", size)
+        //     .attr("height", size)
+        //     .style("fill", function(d){ return color(d)})
+        //     .on("mouseover", highlight)
+        //     .on("mouseleave", noHighlight)
+
+        // // Add one dot in the legend for each name.
+        // svg.selectAll("mylabels")
+        //     .data(keys)
+        //     .enter()
+        //     .append("text")
+        //     .attr("x", 400 + size*1.2)
+        //     .attr("y", function(d,i){ return 10 + i*(size+5) + (size/2)}) // 100 is where the first dot appears. 25 is the distance between dots
+        //     .style("fill", function(d){ return color(d)})
+        //     .text(function(d){ return d})
+        //     .attr("text-anchor", "left")
+        //     .style("alignment-baseline", "middle")
+        //     .on("mouseover", highlight)
+        //     .on("mouseleave", noHighlight)
+
+        
+
+        })
+
+
+    }
+    
+    
+    populationApp.init = () => {
+        populationApp.buildChart()
+    }
+    populationApp.init()
+    
+
+
+    function resize(){
+        var message = {'resize': 
+                  {
+                    'iframe':'graphic-iframe-sidescroll-test',
+                    'height': document.getElementsByClassName('graphic-sidescroll-test')[0].offsetHeight + 20
+                  }
+                };
+       
+        parent.postMessage(message, "*");
+    };
+
+    window.addEventListener('load', function() {
+        resize();
+    });
+
+    window.addEventListener("resize", function(){
+        resize();
+    });
+
+    setTimeout(function() {
+                        resize();
+                    }, 800);
+
+  
+	document.addEventListener("touchstart", function(){}, true);
+
+</script>
+
+<!-- <style>#graphic-iframe-sidescroll-test{padding:0;width:100%;border:0;overflow:hidden;}</style><iframe id="graphic-iframe-sidescroll-test" src="https://misc.thestar.com/interactivegraphic/2023/05-may/00-sidescoll-test/index-sidescroll-test.html" scrolling="no" height="1050" title="embedded content"></iframe> -->
+
+</body>
+</html>
