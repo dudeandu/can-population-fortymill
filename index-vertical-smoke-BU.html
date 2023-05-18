@@ -86,7 +86,7 @@
         // set the dimensions and margins of the graph
         var margin = {top: 100, right: 30, bottom: 40, left: 120},
             width = chartWidth - margin.left - margin.right,
-            height = 300 - margin.top - margin.bottom;
+            height = 900 - margin.top - margin.bottom;
 
         // append the svg object to the body of the page
         var svg = d3.select("#chart1")
@@ -105,6 +105,7 @@
 
         data.forEach(function(d) {
             d.Births = +d.Births
+            d.baseline = +d.baseline
             d.Canada = +d.Canada
             d.Ontario = +d.Ontario
             d.Deaths = +d.Deaths
@@ -129,138 +130,106 @@
         // console.log(canadaData)
         // console.log(ontarioData)
 
+        
+        
+        // List of groups = header of the csv files
+        // var keys = data.columns.slice(1)
+        var keys = ["baseline","totalMigration","totalNatGrowth"]
+        console.log(keys);
+
+
+        // Add X axis
+        // var x = d3.scaleLinear()
+        //     .domain(d3.extent(data, function(d) { return d.year; }))
         var x = d3.scaleTime()
             .domain(d3.extent(data, function(d) { return d.date; }))
             .range([ 0, width ]);
-            var xAxis = d3.axisBottom().scale(x);
-            svg.append("g")
-            .attr("transform", "translate(0," + height + ")")
-            .attr("class","myXaxis")
+        svg.append("g")
+            .attr("transform", "translate(0," + height*0.8 + ")")
+            // .call(d3.axisBottom(x).tickSize(-height*.7).tickValues([1900, 1925, 1975, 2000]))
+            .call(d3.axisBottom(x).tickSize(-height*.7))
+            .select(".domain").remove()
+        // Customization
+        svg.selectAll(".tick line").attr("stroke", "#b8b8b8")
 
-            // Initialize an Y axis
+        // Add X axis label:
+        svg.append("text")
+            .attr("text-anchor", "end")
+            .attr("x", width)
+            .attr("y", height-30 )
+            .text("Time (year)");
+
+        // Add Y axis
         var y = d3.scaleLinear()
-            .domain([0,40000000])
-            .range([height, 0]);
-            var yAxis = d3.axisLeft().scale(y);
+            // .domain([-100000, 100000])
+            .domain([-20000000,20000000])
+            .range([ height, 0 ]);
+            var yAxis = d3.axisLeft()
+                .scale(y)
+                .tickFormat(function (d) {
+                    return Math.abs(d) * 2;
+                })
+                // .ticks(8,d3.format(".3s"));
             svg.append("g")
             .attr("class","myYaxis")
-
-        // Create the circle that travels along the curve of chart
-        var focus = svg
-        .append('g')
-        .append('circle')
-            .style("fill", "none")
-            .attr("stroke", "black")
-            .attr('r', 8.5)
-            .style("opacity", 0)
-
-        // Create the text that travels along the curve of chart
-        var focusText = svg
-        .append('g')
-        .append('text')
-            .style("opacity", 0)
-            .attr("text-anchor", "left")
-            .attr("alignment-baseline", "middle")
-
-        // Create a rect on top of the svg area: this rectangle recovers mouse position
-        svg
-        .append('rect')
-        .style("fill", "none")
-        .style("pointer-events", "all")
-        .attr('width', width)
-        .attr('height', height)
-        .on('mouseover', mouseover)
-        .on('mousemove', mousemove)
-        .on('mouseout', mouseout);
-
-
-        // This allows to find the closest X index of the mouse:
-        var bisect = d3.bisector(function(d) { return d.date; }).left;
-
-        // Create a function that takes a dataset as input and update the plot:
-        function update(data) {
-
-
-
-            // Create the X axis:
-            // x.domain([0, d3.max(data, function(d) { return d.date }) ]);
-            x.domain(d3.extent(data, function(d) { return d.date; }))
-            svg.selectAll(".myXaxis").transition()
-                .duration(1000)
-                .call(xAxis);
-
-            // create the Y axis
-            // y.domain([0, d3.max(data, function(d) { return d.Canada  }) ]);
-            y.domain([0,40000000])
-            svg.selectAll(".myYaxis")
-                .transition()
-                .duration(1000)
                 .call(yAxis);
 
-            // Create a update selection: bind to the new data
-            var u = svg.selectAll(".lineTest")
-                .data([data], function(d){ return d.date });
+        // color palette
+        var color = d3.scaleOrdinal()
+            .domain(keys)
+            // .range(d3.schemeDark2);
+            .range(['#cfcfcf', '#4b76b4', '#00429d']);
 
-            // Updata the line
-            u
-                .enter()
-                .append("path")
-                .attr("class","lineTest")
-                .merge(u)
-                .transition()
-                .duration(1000)
-                .attr("d", d3.line()
-                .x(function(d) { return x(d.date); })
-                .y(function(d) { return y(d.value); }))
-                .attr("fill", "none")
-                .attr("stroke", "steelblue")
-                .attr("stroke-width", 2.5)
-            }
 
-            // At the beginning, I run the update function on the first dataset:
-            update(canadaData)
-            let usethisData = canadaData;
-            
-            d3.select('#canadaButton').on('click', function(){
-                update(canadaData)
-                usethisData = canadaData;
-            })
-            
-            d3.select('#ontarioButton').on('click', function(){
-                update(ontarioData)
-                usethisData = ontarioData;
-            })
+        //stack the data?
+        var stackedData = d3.stack()
+            .offset(d3.stackOffsetSilhouette)
+            .keys(keys)
+            (data)
 
-              // What happens when the mouse move -> show the annotations at the right positions.
-            function mouseover() {
-                focus.style("opacity", 1)
-                focusText.style("opacity",1)
-            }
+        // create a tooltip
+        var Tooltip = svg
+            .append("text")
+            .attr("x", 0)
+            .attr("y", 0)
+            .style("opacity", 0)
+            .style("font-size", 17)
 
-            function mousemove() {
-                // recover coordinate we need
-                var x0 = x.invert(d3.mouse(this)[0]);
-                var i = bisect(data, x0, 1);
-                selectedData = usethisData[i]
-                focus
-                .attr("cx", x(selectedData.date))
-                .attr("cy", y(selectedData.value))
-                focusText
-                .html(populationApp.formatTime(selectedData.date) + "  -  " + "y:" + selectedData.value)
-                .attr("x", function() {
-                          if (d3.event.pageX > (width/2)) {return x(selectedData.date)-180}
-                          else {return x(selectedData.date)+15}
-                        })
-                .attr("y", y(selectedData.value))
-                }
-            function mouseout() {
-                focus.style("opacity", 0)
-                focusText.style("opacity", 0)
-            }
+        // Three function that change the tooltip when user hover / move / leave a cell
+        var mouseover = function(d) {
+            Tooltip.style("opacity", 1)
+            d3.selectAll(".myArea").style("opacity", .2)
+            d3.select(this)
+            .style("stroke", "black")
+            .style("opacity", 1)
+        }
+        var mousemove = function(d,i) {
+            grp = keys[i]
+            Tooltip.text(grp)
+        }
+        var mouseleave = function(d) {
+            Tooltip.style("opacity", 0)
+            d3.selectAll(".myArea").style("opacity", 1).style("stroke", "none")
+        }
 
-        
+        // Area generator
+        var area = d3.area()
+            .x(function(d) { return x(d.data.date); })
+            .y0(function(d) { return y(d[0]); })
+            .y1(function(d) { return y(d[1]); })
 
-        
+        // Show the areas
+        svg
+            .selectAll("mylayers")
+            .data(stackedData)
+            .enter()
+            .append("path")
+            .attr("class", "myArea")
+            .style("fill", function(d) { return color(d.key); })
+            .attr("d", area)
+            .on("mouseover", mouseover)
+            .on("mousemove", mousemove)
+            .on("mouseleave", mouseleave)
 
         })
 
