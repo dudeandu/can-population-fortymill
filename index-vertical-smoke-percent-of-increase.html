@@ -22,7 +22,10 @@
 
 
 
-
+        .percentofincreaseMIGRATION-comp,
+        .percentofincreaseNATURAL-comp {
+            display: none;
+        }
 
 
 </style>
@@ -98,7 +101,7 @@
                 "translate(" + margin.left + "," + margin.top + ")");
 
         //Read the data
-        d3.csv("./data/can-data-1946-2022.csv",function(data) {
+        d3.csv("./data/can-data-1931-2022-pop-increase-percentage.csv",function(data) {
         
         let canadaData = [], 
             ontarioData = [];
@@ -111,6 +114,8 @@
             d.Deaths = +d.Deaths
             d.imigration = +d.imigration
             d.emigration = +d.emigration
+            d.percentofincreaseMIGRATION = +d.percentofincreaseMIGRATION
+            d.percentofincreaseNATURAL = +d.percentofincreaseNATURAL
             d.date = populationApp.parseDate(d.time)
             d.growth = d.Births + d.imigration
             d.decline = d.Deaths + d.emigration
@@ -134,7 +139,7 @@
         
         // List of groups = header of the csv files
         // var keys = data.columns.slice(1)
-        var keys = ["baseline","totalMigration","totalNatGrowth"]
+        var keys = ["percentofincreaseMIGRATION-comp","percentofincreaseMIGRATION","percentofincreaseNATURAL","percentofincreaseNATURAL-comp"]
         console.log(keys);
 
 
@@ -166,7 +171,7 @@
             // Add Y axis
             var x = d3.scaleLinear()
                 // .domain([-100000, 100000])
-                .domain([-20000000,20000000])
+                .domain([-1,1])
                 .range([ 0, width ]);
             svg.append("g")
                 .attr("transform", "translate(0," + height + ")")
@@ -174,7 +179,7 @@
                 .call(d3.axisBottom(x)
                     .tickSize(-height)
                     .tickFormat(function (d) {
-                        return Math.abs(d) * 2;
+                        return Math.abs(d) * 100 + "%";
                     })
                 )
                 .select(".domain").remove()
@@ -187,7 +192,7 @@
         var color = d3.scaleOrdinal()
             .domain(keys)
             // .range(d3.schemeDark2);
-            .range(['#cfcfcf', '#4b76b4', '#00429d']);
+            .range(['#f8f8f8', '#4b76b4', '#00429d','#f8f8f8']);
 
 
         //stack the data?
@@ -223,6 +228,7 @@
 
         // Area generator
         var area = d3.area()
+            .curve(d3.curveBasis)
             .x0(function(d) { return x(d[0]); })
             .x1(function(d) { return x(d[1]); })
             .y(function(d) { return y(d.data.date); })
@@ -234,7 +240,7 @@
             .data(stackedData)
             .enter()
             .append("path")
-            .attr("class", "myArea")
+            .attr("class", function(d) { return "myArea " + d.key; })
             .style("fill", function(d) { return color(d.key); })
             .attr("d", area)
             .on("mouseover", mouseover)
@@ -248,7 +254,7 @@
                 .call(d3.axisTop(x)
                     .tickSize(height)
                     .tickFormat(function (d) {
-                        return Math.abs(d) * 2;
+                        return Math.abs(d) * 100 + "%";
                     })
                 )
                 .select(".domain").remove()
