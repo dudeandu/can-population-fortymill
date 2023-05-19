@@ -185,8 +185,7 @@
                 .select(".domain").remove()
                 
             // Customization
-            svg.selectAll(".tick line").attr("stroke", "#b8b8b8")
-            
+            // svg.selectAll(".tick line").attr("stroke", "#F0F0F0")
 
         // color palette
         var color = d3.scaleOrdinal()
@@ -201,30 +200,30 @@
             .keys(keys)
             (data)
 
-        // create a tooltip
-        var Tooltip = svg
-            .append("text")
-            .attr("x", 0)
-            .attr("y", 0)
-            .style("opacity", 0)
-            .style("font-size", 17)
+        // // create a tooltip
+        // var Tooltip = svg
+        //     .append("text")
+        //     .attr("x", 0)
+        //     .attr("y", 0)
+        //     .style("opacity", 0)
+        //     .style("font-size", 17)
 
-        // Three function that change the tooltip when user hover / move / leave a cell
-        var mouseover = function(d) {
-            Tooltip.style("opacity", 1)
-            d3.selectAll(".myArea").style("opacity", .2)
-            d3.select(this)
-            .style("stroke", "black")
-            .style("opacity", 1)
-        }
-        var mousemove = function(d,i) {
-            grp = keys[i]
-            Tooltip.text(grp)
-        }
-        var mouseleave = function(d) {
-            Tooltip.style("opacity", 0)
-            d3.selectAll(".myArea").style("opacity", 1).style("stroke", "none")
-        }
+        // // Three function that change the tooltip when user hover / move / leave a cell
+        // var mouseover = function(d) {
+        //     Tooltip.style("opacity", 1)
+        //     d3.selectAll(".myArea").style("opacity", .2)
+        //     d3.select(this)
+        //     .style("stroke", "black")
+        //     .style("opacity", 1)
+        // }
+        // var mousemove = function(d,i) {
+        //     grp = keys[i]
+        //     Tooltip.text(grp)
+        // }
+        // var mouseleave = function(d) {
+        //     Tooltip.style("opacity", 0)
+        //     d3.selectAll(".myArea").style("opacity", 1).style("stroke", "none")
+        // }
 
         // Area generator
         var area = d3.area()
@@ -245,7 +244,41 @@
             .attr("d", area)
             .on("mouseover", mouseover)
             .on("mousemove", mousemove)
-            .on("mouseleave", mouseleave)
+            // .on("mouseleave", mouseleave)
+
+        // Create a rect on top of the svg area: this rectangle recovers mouse position
+        var focusLine = svg
+            .append("line")
+            .attr("class", "positionline")
+            .style("stroke", "#CE1141")
+            .style("opacity", 1)
+            .attr("y1", y(0))
+            .attr("x1", x(-1))
+            .attr("y2", y(0))
+            .attr("x2", x(1));
+
+        // Create the text that travels along the curve of chart
+        var focusText = svg
+        .append('g')
+        .append('text')
+            .style("opacity", 0)
+            .attr("text-anchor", "left")
+            .attr("alignment-baseline", "middle")
+
+        // Create a rect on top of the svg area: this rectangle recovers mouse position
+        svg
+        .append('rect')
+        .style("fill", "none")
+        .style("pointer-events", "all")
+        .attr('width', width)
+        .attr('height', height)
+        .on('mouseover', mouseover)
+        .on('mousemove', mousemove)
+        .on('mouseout', mouseout);
+
+
+        // This allows to find the closest X index of the mouse:
+        var bisect = d3.bisector(function(d) { return d.date; }).left;
 
 
             svg.append("g")
@@ -258,6 +291,40 @@
                     })
                 )
                 .select(".domain").remove()
+
+            // What happens when the mouse move -> show the annotations at the right positions.
+            function mouseover() {
+                focusLine.style("opacity",1)
+                focusText.style("opacity",1)
+            }
+
+            function mousemove() {
+                // recover coordinate we need
+                // var x0 = x.invert(d3.mouse(this)[0]);
+                var y0 = y.invert(d3.mouse(this)[1]);
+                // console.log(d3.mouse(this));
+                var i = bisect(data, y0, 1);
+                selectedData = data[i]
+
+                focusLine
+                // .attr("cx", x(selectedData.date))
+                .attr("y1", y(selectedData.date))
+                .attr("y2", y(selectedData.date))
+
+                focusText
+                .html(populationApp.formatTime(selectedData.date) + "  -  " + "y:" + selectedData.percentofincreaseMIGRATION)
+                // .attr("x", function() {
+                //           if (d3.event.pageX > (width/2)) {return x(selectedData.date)-180}
+                //           else {return x(selectedData.date)+15}
+                //         })
+                .attr("x", x(0))
+                .attr("y", y(selectedData.date))
+                }
+
+            function mouseout() {
+                // focus.style("opacity", 0)
+                // focusText.style("opacity", 0)
+            }
 
         })
 
