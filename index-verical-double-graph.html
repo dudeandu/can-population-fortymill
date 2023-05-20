@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Toronto Star graphic template</title>
+    <link rel="stylesheet" href="https://misc.thestar.com/interactivegraphic/assets/style.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"> 
+    
+
+    <!-- Load d3.js & color scale-->
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+
+<style>
+
+        /* .graphic-wrapper { */
+        /* max-width: 660px; */
+        /* } */
+        .graphicFlex-container {
+            display: flex;
+        }
+
+        #chart1 {
+            width: 80%;
+        }
+        #chart2 {
+            width: 20%;
+            /* background-color: tomato; */
+        }
+
+
+
+        .percentofincreaseMIGRATION-comp,
+        .percentofincreaseNATURAL-comp {
+            display: none;
+        }
+
+
+</style>
+</head>
+<body>
+  <div class="graphic-wrapper graphic-sidescroll-test">
+    <div class="graphic-top">
+        <h2 class="graphic-top__graphic-hed">Add your heading here</h2>
+        <h3 class="graphic-top__graphic-dek">A longer dek could be required to fully explain what the data is. A longer dek could be required to fully explain what the data is.</h3>
+
+        <div class="graphic-legend">
+            <div class="graphic-legend-container">
+                <div class="graphic-legend-dot" id="legend-dot-1"></div><p class="graphic-legend-text">Legend text 1</p>
+            </div>
+            <div class="graphic-legend-container">
+                <div class="graphic-legend-dot" id="legend-dot-2"></div><p class="graphic-legend-text">Legend text 2</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="graphic">
+
+        <!-- Add 2 buttons -->
+        <button id="canadaButton">Canada</button>
+        <button id="ontarioButton">Ontario</button>
+        <div class="graphicFlex-container">
+            <div id="chart1"></div>
+            <div id="chart2"></div>
+        </div>
+        
+    </div>
+
+
+
+   
+
+    <div class="graphic-bottom">
+        <p class="graphic-bottom__notetext" id="notetext">* Any further note to explain one aspect of the data could go here.</p>
+        <p class="graphic-bottom__graphic-source" id="source">Source: Stats report</p>
+        <p class="graphic-bottom__graphic-byline" id="byline">Toronto Star graphic</p>
+    </div>
+  </div>
+
+<script>
+
+
+    const populationApp = {}
+
+    populationApp.parseDate = d3.timeParse("%Y-%m-%d");
+    // populationApp.parseDate = d3.timeParse("%b %Y");
+    // populationApp.formatTime = d3.timeFormat("%b %e, %Y");
+    populationApp.formatTime = d3.timeFormat("%Y");
+    
+    populationApp.buildChart = () => {
+        
+        d3.select('#chart1').html('')
+        d3.select('#chart2').html('')
+        const chartWidth =  parseInt(d3.select('#chart1').style('width'))
+        const chartWidth2 =  parseInt(d3.select('#chart2').style('width'))
+        
+        if (chartWidth >= 695) {
+            //do something here on mobile versions
+        }
+
+        // set the dimensions and margins of the graph
+        var margin = {top: 100, right: 30, bottom: 40, left: 120},
+            width = chartWidth - margin.left - margin.right,
+            width2 = chartWidth2 - margin.left - margin.right,
+            height = 9000 - margin.top - margin.bottom;
+
+        // append the svg object to the body of the page
+        var svg = d3.select("#chart1")
+        .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+            .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+
+        // append the svg object to the body of the page
+        var svg2 = d3.select("#chart2")
+        .append("svg")
+            .attr("width", width2 + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+            .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+
+        //Read the data
+        d3.csv("./data/can-data-1931-2022-pop-increase-percentage.csv",function(data) {
+        
+        let canadaData = [], 
+            ontarioData = [];
+
+        data.forEach(function(d) {
+            d.Births = +d.Births
+            d.baseline = +d.baseline
+            d.Canada = +d.Canada
+            d.Ontario = +d.Ontario
+            d.Deaths = +d.Deaths
+            d.imigration = +d.imigration
+            d.emigration = +d.emigration
+            d.percentofincreaseMIGRATION = +d.percentofincreaseMIGRATION
+            d.percentofincreaseNATURAL = +d.percentofincreaseNATURAL
+            d.date = populationApp.parseDate(d.time)
+            d.growth = d.Births + d.imigration
+            d.decline = d.Deaths + d.emigration
+
+            canadaData.push({
+                "date": d.date,
+                "value": d.Canada
+            })
+
+            ontarioData.push({
+                "date": d.date,
+                "value": d.Ontario
+            })
+        });
+         
+        console.log(data)
+        // console.log(canadaData)
+        // console.log(ontarioData)
+
+        
+        
+        // List of groups = header of the csv files
+        // var keys = data.columns.slice(1)
+        var keys = ["percentofincreaseMIGRATION-comp","percentofincreaseMIGRATION","percentofincreaseNATURAL","percentofincreaseNATURAL-comp"]
+
+        // Add X axis
+        // var x = d3.scaleLinear()
+        //     .domain(d3.extent(data, function(d) { return d.year; }))
+            var y = d3.scaleTime()
+                .domain(d3.extent(data, function(d) { return d.date; }))
+                .range([ 0, height ]);
+            var yAxis = d3.axisLeft()
+                .scale(y)
+                // .ticks(8,d3.format(".3s"));
+                .ticks(100)
+                .tickFormat(function (d) {
+                    return populationApp.formatTime(d);
+                })
+            svg.append("g")
+            .attr("class","myYaxis")
+                .call(yAxis);
+            
+            // Add Y axis
+            var x = d3.scaleLinear()
+                // .domain([-100000, 100000])
+                .domain([-1,1])
+                .range([ 0, width ]);
+            svg.append("g")
+                .attr("transform", "translate(0," + height + ")")
+                // .call(d3.axisBottom(x).tickSize(-height*.7).tickValues([1900, 1925, 1975, 2000]))
+                .call(d3.axisBottom(x)
+                    .tickSize(-height)
+                    .tickFormat(function (d) {
+                        return Math.abs(d) * 100 + "%";
+                    })
+                )
+                .select(".domain").remove()
+            
+                // Add Y axis
+            var x2 = d3.scaleLinear()
+                .domain([0,40000000])
+                .range([ 0, width2 ]);
+            svg2.append("g")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(x2)
+                    .tickSize(-height)
+                    .ticks(2)
+                    .tickFormat(function (d) {
+                        return d3.format(".2s")(d);
+                    })
+                )
+                .select(".domain").remove()
+
+            svg2.append("g")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisTop(x2)
+                    .tickSize(height)
+                    .ticks(2)
+                    .tickFormat(function (d) {
+                        return d3.format(".2s")(d);
+                    })
+                )
+                .select(".domain").remove()
+                
+            // Customization
+            // svg.selectAll(".tick line").attr("stroke", "#F0F0F0")
+
+        // color palette
+        var color = d3.scaleOrdinal()
+            .domain(keys)
+            // .range(d3.schemeDark2);
+            .range(['#f8f8f8', '#4b76b4', '#00429d','#f8f8f8']);
+
+
+        //stack the data?
+        var stackedData = d3.stack()
+            .offset(d3.stackOffsetSilhouette)
+            .keys(keys)
+            (data)
+
+        // Area generator
+        var area = d3.area()
+            .curve(d3.curveBasis)
+            .x0(function(d) { return x(d[0]); })
+            .x1(function(d) { return x(d[1]); })
+            .y(function(d) { return y(d.data.date); })
+            
+
+        // Show the areas
+        svg
+            .selectAll("mylayers")
+            .data(stackedData)
+            .enter()
+            .append("path")
+            .attr("class", function(d) { return "myArea " + d.key; })
+            .style("fill", function(d) { return color(d.key); })
+            .attr("d", area)
+            .on("mouseover", mouseover)
+            .on("mousemove", mousemove)
+            // .on("mouseleave", mouseleave)
+
+            // Create a function that takes a dataset as input and update the plot:
+            function update(data) {
+
+                // Create a update selection: bind to the new data
+                var popLine = svg2.selectAll(".lineTest")
+                    .data([data], function(d){ return d.Canada });
+
+                // Updata the line
+                popLine
+                    .enter()
+                    .append("path")
+                    .attr("class","lineTest")
+                    .merge(popLine)
+                    .transition()
+                    .duration(300)
+                    .attr("d", d3.line()
+                    .x(function(d) { 
+                        // console.log(d.Canada);
+                        return x2(d.Canada); })
+                    .y(function(d) { return y(d.date); }))
+                    .attr("fill", "none")
+                    .attr("stroke", "steelblue")
+                    .attr("stroke-width", 2.5)
+            }
+
+            // At the beginning, I run the update function on the first dataset:
+            update(data)
+
+        // Create a rect on top of the svg area: this rectangle recovers mouse position
+        var focusLine = svg
+            .append("line")
+            .attr("class", "positionline")
+            .style("stroke", "#CE1141")
+            .style("opacity", 1)
+            .attr("y1", y(0))
+            .attr("x1", x(-1))
+            .attr("y2", y(0))
+            .attr("x2", x(1));
+
+        // Create the text that travels along the curve of chart
+        var focusText = svg
+        .append('g')
+        .append('text')
+            .style("opacity", 0)
+            .attr("text-anchor", "left")
+            .attr("alignment-baseline", "middle")
+
+        // Create a rect on top of the svg area: this rectangle recovers mouse position
+        svg
+        .append('rect')
+        .style("fill", "none")
+        .style("pointer-events", "all")
+        .attr('width', width)
+        .attr('height', height)
+        .on('mouseover', mouseover)
+        .on('mousemove', mousemove)
+        .on('mouseout', mouseout);
+
+
+        // This allows to find the closest X index of the mouse:
+        var bisect = d3.bisector(function(d) { return d.date; }).left;
+
+
+            svg.append("g")
+                .attr("transform", "translate(0," + height + ")")
+                // .call(d3.axisBottom(x).tickSize(-height*.7).tickValues([1900, 1925, 1975, 2000]))
+                .call(d3.axisTop(x)
+                    .tickSize(height)
+                    .tickFormat(function (d) {
+                        return Math.abs(d) * 100 + "%";
+                    })
+                )
+                .select(".domain").remove()
+
+            // What happens when the mouse move -> show the annotations at the right positions.
+            function mouseover() {
+                focusLine.style("opacity",1)
+                focusText.style("opacity",1)
+            }
+
+            function mousemove() {
+                // recover coordinate we need
+                // var x0 = x.invert(d3.mouse(this)[0]);
+                var y0 = y.invert(d3.mouse(this)[1]);
+                // console.log(d3.mouse(this));
+                var i = bisect(data, y0, 1);
+                selectedData = data[i]
+
+                focusLine
+                // .attr("cx", x(selectedData.date))
+                .attr("y1", y(selectedData.date))
+                .attr("y2", y(selectedData.date))
+
+                focusText
+                .html(populationApp.formatTime(selectedData.date) + "  -  " + "y:" + selectedData.percentofincreaseMIGRATION)
+                // .attr("x", function() {
+                //           if (d3.event.pageX > (width/2)) {return x(selectedData.date)-180}
+                //           else {return x(selectedData.date)+15}
+                //         })
+                .attr("x", x(0))
+                .attr("y", y(selectedData.date))
+                }
+
+            function mouseout() {
+                // focus.style("opacity", 0)
+                // focusText.style("opacity", 0)
+            }
+
+        })
+
+
+    }
+    
+    
+    populationApp.init = () => {
+        populationApp.buildChart()
+    }
+    populationApp.init()
+    
+
+
+    function resize(){
+        var message = {'resize': 
+                  {
+                    'iframe':'graphic-iframe-sidescroll-test',
+                    'height': document.getElementsByClassName('graphic-sidescroll-test')[0].offsetHeight + 20
+                  }
+                };
+       
+        parent.postMessage(message, "*");
+    };
+
+    window.addEventListener('load', function() {
+        resize();
+    });
+
+    window.addEventListener("resize", function(){
+        resize();
+    });
+
+    setTimeout(function() {
+                        resize();
+                    }, 800);
+
+  
+	document.addEventListener("touchstart", function(){}, true);
+
+</script>
+
+<!-- <style>#graphic-iframe-sidescroll-test{padding:0;width:100%;border:0;overflow:hidden;}</style><iframe id="graphic-iframe-sidescroll-test" src="https://misc.thestar.com/interactivegraphic/2023/05-may/00-sidescoll-test/index-sidescroll-test.html" scrolling="no" height="1050" title="embedded content"></iframe> -->
+
+</body>
+</html>
