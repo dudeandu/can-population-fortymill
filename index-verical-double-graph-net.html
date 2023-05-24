@@ -43,7 +43,22 @@
         svg .tick line{
             opacity: 0.2;
         }
-
+        
+        svg .invisibleTick .tick line{
+            opacity: 0;
+        }
+        
+        .backgroundTick text,
+        .backgroundText {
+            stroke: #F8F8F8;
+            stroke-width: 3px;
+            stroke-opacity: 1;
+            stroke-linejoin: round;
+            stroke-linecap: round;
+        }
+        .backgroundText {
+            stroke-width: 8px;
+        }
 
 </style>
 </head>
@@ -179,8 +194,8 @@
             // Add Y axis
             var x = d3.scaleLinear()
                 .domain([
-                    d3.max(data, function(d) { return d.netMigration + d.natGrowth; })/-2, 
-                    d3.max(data, function(d) { return d.netMigration + d.natGrowth; })/2 
+                    d3.max(data, function(d) { return d.netMigration + d.natGrowth + d.natGrowthcomp + d.netMigrationcomp; })/-2, 
+                    d3.max(data, function(d) { return d.netMigration + d.natGrowth + d.natGrowthcomp + d.netMigrationcomp; })/2 
                 ])
                 .range([ 0, width ]);
             svg.append("g")
@@ -271,11 +286,66 @@
         area2.append("path")
             .datum(data)
             .attr("class", "myArea")  // I add the class myArea to be able to modify it later on.
-            .attr("fill", "#00429d")
+            .attr("fill", "#005789")
             .attr("fill-opacity", .8)
             // .attr("stroke", "black")
             // .attr("stroke-width", 1)
             .attr("d", areaGenerator )
+
+            const totalAxis = 8;
+
+            for ( let i = 1; i < totalAxis; i++) {
+                svg.append("g")
+                    .attr("transform", "translate(0," + height + ")")
+                    .attr("class", "invisibleTick backgroundTick")
+                    .call(d3.axisTop(x)
+                        .tickSize((height/totalAxis * i) +1)
+                        .tickFormat(function (d) {
+                            return d3.format(".0s")(Math.abs(d)/2);
+                        })
+                    )
+                    .select(".domain").remove()
+
+
+                svg.append("g")
+                    .attr("transform", "translate(0," + height + ")")
+                    .attr("class", "invisibleTick")
+                    .call(d3.axisTop(x)
+                        .tickSize((height/totalAxis * i) +1)
+                        .tickFormat(function (d) {
+                            return d3.format(".0s")(Math.abs(d)/2);
+                        })
+                    )
+                    .select(".domain").remove()
+
+                svg2.append("g")
+                    .attr("transform", "translate(0," + height + ")")
+                    .attr("class", "invisibleTick backgroundTick")
+                    .call(d3.axisTop(x2)
+                        .tickSize((height/totalAxis * i) +1)
+                        .ticks(2)
+                        .tickValues(["20000000","40000000"])
+                        .tickFormat(function (d) {
+                        return d3.format(".2s")(d);
+                        })
+                    )
+                    .select(".domain").remove()
+
+                svg2.append("g")
+                    .attr("transform", "translate(0," + height + ")")
+                    .attr("class", "invisibleTick")
+                    .call(d3.axisTop(x2)
+                        .tickSize((height/totalAxis * i) +1)
+                        .ticks(2)
+                        .tickValues(["20000000","40000000"])
+                        .tickFormat(function (d) {
+                        return d3.format(".2s")(d);
+                        })
+                    )
+                    .select(".domain").remove()
+
+                
+            }
 
         // Create a rect on top of the svg area: this rectangle recovers mouse position
         var focusLine = svg
@@ -300,6 +370,42 @@
             .attr("x1", x2(x2.domain()[0]))
             .attr("y2", y(0))
             .attr("x2", x2(x2.domain()[1]));
+
+        // Create the text that travels along the curve of chart
+        var focusTextYearBG = svg
+        .append('g')
+        .append('text')
+            .attr("class", "backgroundText")
+            .style("opacity", 0)
+            .attr("text-anchor", "right")
+            .attr("alignment-baseline", "center")
+
+        // Create the text that travels along the curve of chart
+        var focusTextMigrationBG = svg
+        .append('g')
+        .append('text')
+            .attr("class", "backgroundText")
+            .style("opacity", 0)
+            .attr("text-anchor", "right")
+            .attr("alignment-baseline", "center")
+
+        // Create the text that travels along the curve of chart
+        var focusTextNaturalBG = svg
+        .append('g')
+        .append('text')
+            .attr("class", "backgroundText")
+            .style("opacity", 0)
+            .attr("text-anchor", "right")
+            .attr("alignment-baseline", "center")
+
+        // Create the text that travels along the curve of chart
+        var focusTextPopulationBG = svg
+        .append('g')
+        .append('text')
+            .attr("class", "backgroundText")
+            .style("opacity", 0)
+            .attr("text-anchor", "right")
+            .attr("alignment-baseline", "center")
 
         // Create the text that travels along the curve of chart
         var focusTextYear = svg
@@ -375,6 +481,10 @@
             function mouseover() {
                 focusLine.style("opacity",1)
                 focusLineB.style("opacity",1)
+                focusTextYearBG.style("opacity",1)
+                focusTextMigrationBG.style("opacity",1)
+                focusTextNaturalBG.style("opacity",1)
+                focusTextPopulationBG.style("opacity",1)
                 focusTextYear.style("opacity",1)
                 focusTextMigration.style("opacity",1)
                 focusTextNatural.style("opacity",1)
@@ -382,6 +492,11 @@
             }
 
             function mousemove() {
+
+                let bottomChartOffset = 0;
+                if (d3.event.pageY > (height * 0.9)) {
+                    bottomChartOffset = 80
+                }
                 // recover coordinate we need
                 // var x0 = x.invert(d3.mouse(this)[0]);
                 var y0 = y.invert(d3.mouse(this)[1]);
@@ -399,6 +514,30 @@
                 .attr("y1", y(selectedData.date))
                 .attr("y2", y(selectedData.date))
 
+                focusTextYearBG
+                .html(populationApp.formatTime(selectedData.date))
+                // .attr("x", function() {
+                //           if (d3.event.pageX > (width/2)) {return x(selectedData.date)-180}
+                //           else {return x(selectedData.date)+15}
+                //         })
+                .attr("x", x(x.domain()[1]) - 210)
+                .attr("y", y(selectedData.date) - 10 - bottomChartOffset)
+
+                focusTextMigrationBG
+                .html("Net migration: " + d3.format(",")(selectedData.netMigration))
+                .attr("x", x(x.domain()[1]) - 210)
+                .attr("y", y(selectedData.date) + 20 - bottomChartOffset)
+
+                focusTextNaturalBG
+                .html("Natural Growth: " + d3.format(",")(selectedData.natGrowth))
+                .attr("x", x(x.domain()[1]) - 210)
+                .attr("y", y(selectedData.date) + 40 - bottomChartOffset)
+
+                focusTextPopulationBG
+                .html("Population: " + d3.format(",")(selectedData.Canada))
+                .attr("x", x(x.domain()[1]) - 210)
+                .attr("y", y(selectedData.date) + 60 - bottomChartOffset)
+
                 focusTextYear
                 .html(populationApp.formatTime(selectedData.date))
                 // .attr("x", function() {
@@ -406,22 +545,22 @@
                 //           else {return x(selectedData.date)+15}
                 //         })
                 .attr("x", x(x.domain()[1]) - 210)
-                .attr("y", y(selectedData.date) - 10)
+                .attr("y", y(selectedData.date) - 10 - bottomChartOffset)
 
                 focusTextMigration
                 .html("Net migration: " + d3.format(",")(selectedData.netMigration))
                 .attr("x", x(x.domain()[1]) - 210)
-                .attr("y", y(selectedData.date) + 20)
+                .attr("y", y(selectedData.date) + 20 - bottomChartOffset)
 
                 focusTextNatural
                 .html("Natural Growth: " + d3.format(",")(selectedData.natGrowth))
                 .attr("x", x(x.domain()[1]) - 210)
-                .attr("y", y(selectedData.date) + 40)
+                .attr("y", y(selectedData.date) + 40 - bottomChartOffset)
 
                 focusTextPopulation
                 .html("Population: " + d3.format(",")(selectedData.Canada))
                 .attr("x", x(x.domain()[1]) - 210)
-                .attr("y", y(selectedData.date) + 60)
+                .attr("y", y(selectedData.date) + 60 - bottomChartOffset)
                 }
 
             function mouseout() {
