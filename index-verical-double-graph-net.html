@@ -31,7 +31,9 @@
             /* background-color: tomato; */
         }
 
-
+        svg {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif;
+        }
 
         .natGrowthcomp,
         .netMigrationcomp {
@@ -300,12 +302,36 @@
             .attr("x2", x2(x2.domain()[1]));
 
         // Create the text that travels along the curve of chart
-        var focusText = svg
+        var focusTextYear = svg
         .append('g')
         .append('text')
             .style("opacity", 0)
-            .attr("text-anchor", "left")
-            .attr("alignment-baseline", "right")
+            .attr("text-anchor", "right")
+            .attr("alignment-baseline", "center")
+
+        // Create the text that travels along the curve of chart
+        var focusTextMigration = svg
+        .append('g')
+        .append('text')
+            .style("opacity", 0)
+            .attr("text-anchor", "right")
+            .attr("alignment-baseline", "center")
+
+        // Create the text that travels along the curve of chart
+        var focusTextNatural = svg
+        .append('g')
+        .append('text')
+            .style("opacity", 0)
+            .attr("text-anchor", "right")
+            .attr("alignment-baseline", "center")
+
+        // Create the text that travels along the curve of chart
+        var focusTextPopulation = svg
+        .append('g')
+        .append('text')
+            .style("opacity", 0)
+            .attr("text-anchor", "right")
+            .attr("alignment-baseline", "center")
 
         // Create a rect on top of the svg area: this rectangle recovers mouse position
         svg
@@ -349,7 +375,10 @@
             function mouseover() {
                 focusLine.style("opacity",1)
                 focusLineB.style("opacity",1)
-                focusText.style("opacity",1)
+                focusTextYear.style("opacity",1)
+                focusTextMigration.style("opacity",1)
+                focusTextNatural.style("opacity",1)
+                focusTextPopulation.style("opacity",1)
             }
 
             function mousemove() {
@@ -370,14 +399,29 @@
                 .attr("y1", y(selectedData.date))
                 .attr("y2", y(selectedData.date))
 
-                focusText
-                .html(populationApp.formatTime(selectedData.date) + "  -  " + "y:" + selectedData.netMigration)
+                focusTextYear
+                .html(populationApp.formatTime(selectedData.date))
                 // .attr("x", function() {
                 //           if (d3.event.pageX > (width/2)) {return x(selectedData.date)-180}
                 //           else {return x(selectedData.date)+15}
                 //         })
-                .attr("x", x(0))
-                .attr("y", y(selectedData.date))
+                .attr("x", x(x.domain()[1]) - 210)
+                .attr("y", y(selectedData.date) - 10)
+
+                focusTextMigration
+                .html("Net migration: " + d3.format(",")(selectedData.netMigration))
+                .attr("x", x(x.domain()[1]) - 210)
+                .attr("y", y(selectedData.date) + 20)
+
+                focusTextNatural
+                .html("Natural Growth: " + d3.format(",")(selectedData.natGrowth))
+                .attr("x", x(x.domain()[1]) - 210)
+                .attr("y", y(selectedData.date) + 40)
+
+                focusTextPopulation
+                .html("Population: " + d3.format(",")(selectedData.Canada))
+                .attr("x", x(x.domain()[1]) - 210)
+                .attr("y", y(selectedData.date) + 60)
                 }
 
             function mouseout() {
