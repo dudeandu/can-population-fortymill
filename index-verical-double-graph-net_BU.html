@@ -60,16 +60,6 @@
             stroke-width: 8px;
         }
 
-        @media (max-width: 650px) {
-            #chart1 {
-                width: 65%;
-            }
-            #chart2 {
-                width: 35%;
-                /* background-color: tomato; */
-            }
-        }
-
 </style>
 </head>
 <body>
@@ -123,41 +113,23 @@
     populationApp.formatTime = d3.timeFormat("%Y");
     
     populationApp.buildChart = () => {
-
-        // CHARTS SETUP HERE ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
         
         d3.select('#chart1').html('')
         d3.select('#chart2').html('')
         const chartWidth =  parseInt(d3.select('#chart1').style('width'))
         const chartWidth2 =  parseInt(d3.select('#chart2').style('width'))
 
-        let mobileTextOffset = 0
-        let mobileTextOffsetAnnotation = 0
-        let ticksA = 8;
-        let ticksB = 2;
+        console.log(chartWidth);
         
-        if (chartWidth <= 695) {
+        if (chartWidth >= 695) {
             //do something here on mobile versions
-            console.log("true")
-            ticksA = 4;
-            mobileTextOffset = -60
         }
 
         // set the dimensions and margins of the graph
-        var margin = {top: 100, right: 30, bottom: 40, left: 40, leftB: 60},
+        var margin = {top: 100, right: 30, bottom: 40, left: 80, leftB: 60},
             width = chartWidth - margin.left - margin.right,
-            width2 = chartWidth2 - margin.left - margin.right,
+            width2 = chartWidth2 - margin.leftB - margin.right,
             height = 6000 - margin.top - margin.bottom;
-
-        if (chartWidth <= 650) {
-            // set the dimensions and margins of the graph
-            margin = {top: 100, right: 30, bottom: 40, left: 40, leftB: 60},
-                width = chartWidth - margin.left - margin.right,
-                width2 = chartWidth2 - margin.left - margin.right,
-                height = 6000 - margin.top - margin.bottom;
-
-            mobileTextOffsetAnnotation = 0
-        }
 
         // append the svg object to the body of the page
         var svg = d3.select("#chart1")
@@ -198,10 +170,8 @@
         
         // List of groups = header of the csv files
         // var keys = data.columns.slice(1)
-        // var keys = ["percentofincreaseMIGRATION-comp","percentofincreaseMIGRATION","percentofincreaseNATURAL","percentofincreaseNATURAL-comp"]
-        var keys = ["natGrowthcomp","natGrowth","netMigration","netMigrationcomp"]
-
-        // SETUPS AXIS HERE ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
+        var keys = ["natGrowth","netMigration"]
+        // var keys = ["natGrowthcomp","natGrowth","netMigration","netMigrationcomp"]
 
         // Add X axis
         // var x = d3.scaleLinear()
@@ -212,7 +182,6 @@
             var yAxis = d3.axisLeft()
                 .scale(y)
                 // .ticks(8,d3.format(".3s"));
-                // .tickSize(width)
                 .ticks(100)
                 .tickFormat(function (d) {
                     return populationApp.formatTime(d);
@@ -228,19 +197,29 @@
             var x = d3.scaleLinear()
                 .domain([
                     d3.max(data, function(d) { return d.netMigration})*-1, 
-                    d3.max(data, function(d) { return d.netMigration}) 
+                    d3.max(data, function(d) { return d.netMigration})
                 ])
                 .range([ 0, width ]);
             svg.append("g")
                 .attr("transform", "translate(0," + height + ")")
+                // .call(d3.axisBottom(x).tickSize(-height*.x7).tickValues([1900, 1925, 1975, 2000]))
                 .call(d3.axisBottom(x)
-                    .ticks(ticksA)
                     .tickSize(-height)
                     .tickFormat(function (d) {
                         return d3.format(".0s")(Math.abs(d));
                     })
                 )
                 .select(".domain").remove()
+
+                console.log(x.domain());
+                console.log(x(-1007557))
+                console.log(x(-503778.5))
+                console.log(x(0))
+                console.log(x(503778.5))
+                console.log(x(1007557))
+                // console.log(x(-1007557))
+                // console.log(width/2)
+                // console.log(width)
             
                 // Add Y axis
             var x2 = d3.scaleLinear()
@@ -250,7 +229,7 @@
                 .attr("transform", "translate(0," + height + ")")
                 .call(d3.axisBottom(x2)
                     .tickSize(-height)
-                    .ticks(ticksB)
+                    .ticks(2)
                     .tickFormat(function (d) {
                         return d3.format(".0s")(d);
                     })
@@ -261,7 +240,7 @@
                 .attr("transform", "translate(0," + height + ")")
                 .call(d3.axisTop(x2)
                     .tickSize(height)
-                    .ticks(ticksB)
+                    .ticks(2)
                     .tickFormat(function (d) {
                         return d3.format(".0s")(d);
                     })
@@ -276,58 +255,64 @@
             .domain(keys)
             // .range(d3.schemeDark2);
             // .range(['#f8f8f8', '#4b76b4', '#00429d','#f8f8f8']);
-            .range(['#f8f8f8', '#4b76b4', '#EEAA33','#f8f8f8']);
+            .range(['#4b76b4', '#EEAA33']);
+
         
-        // Making PATHS HERE ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------    
 
-        //stack the data?
-        var stackedData = d3.stack()
-            .offset(d3.stackOffsetSilhouette)
-            .keys(keys)
-            (data)
+        // Create the area variable: where both the area and the brush take place
+        var areaNat = svg.append('g')
+        var areaMig = svg.append('g')
+        var areaCanada = svg2.append('g')
 
-        // Area generator
-        var area = d3.area()
-            // .curve(d3.curveBasis)
-            .curve(d3.curveStepAfter)
-            .x0(function(d) { return x(d[0]); })
-            .x1(function(d) { return x(d[1]); })
-            .y(function(d) { return y(d.data.date); })
-            
-
-        // Show the areas
-        svg
-            .selectAll("mylayers")
-            .data(stackedData)
-            .enter()
-            .append("path")
-            .attr("class", function(d) { return "myArea " + d.key; })
-            .style("fill", function(d) { return color(d.key); })
-            .attr("d", area)
-
-            // Create the area variable: where both the area and the brush take place
-            var area2 = svg2.append('g')
-            // .attr("clip-path", "url(#clip)")
-
-            // Create an area generator
-            var areaGenerator = d3.area()
-            // .x0(x2(0))
+        // Create an area generator
+        var areaGeneratorNat = d3.area()
+            .curve(d3.curveStep)
+            .x0(function(d) { return x(0); })
+            .x1(function(d) { return x(-d.natGrowth) ; })
+            .y(function(d) { return y(d.date); })
+        var areaGeneratorMig = d3.area()
+            .curve(d3.curveStep)
+            .x0(function(d) { return x(0); })
+            .x1(function(d) { 
+                // console.log(d.netMigration);
+                // console.log(x(d.netMigration));
+                return x(d.netMigration); })
+                .y(function(d) { return y(d.date); })
+                var areaGeneratorCanada = d3.area()
+                // .curve(d3.curveStep)
             .x0(function(d) { return x2(0); })
             .x1(function(d) { return x2(d.Canada); })
             .y(function(d) { return y(d.date); })
 
-            // Add the area
-        area2.append("path")
+        // Add the area
+        areaNat.append("path")
             .datum(data)
             .attr("class", "myArea")  // I add the class myArea to be able to modify it later on.
-            // .attr("fill", "#005789")
-            .attr("fill", "#009988")
+            .attr("fill", "#4b76b4")
+            .attr("fill-opacity", 1)
+            .attr("class", function(d) { return "myArea " + d.key; })
+            // .style("fill", function(d) { return color(d.key); })
+            .attr("d", areaGeneratorNat )
+
+        // Add the area
+        areaMig.append("path")
+            .datum(data)
+            .attr("class", "myArea")  // I add the class myArea to be able to modify it later on.
+            .attr("fill", "#EEAA33")
+            .attr("fill-opacity", 1)
+            .attr("class", function(d) { return "myArea " + d.key; })
+            // .style("fill", function(d) { return color(d.key); })
+            .attr("d", areaGeneratorMig )
+
+        // Add the area
+        areaCanada.append("path")
+            .datum(data)
+            .attr("class", "myArea")  // I add the class myArea to be able to modify it later on.
+            .attr("fill", "#005789")
             .attr("fill-opacity", .8)
             // .attr("stroke", "black")
             // .attr("stroke-width", 1)
-            .attr("d", areaGenerator )
-
-        // Making AXIS LABELS HERE ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
+            .attr("d", areaGeneratorCanada )
 
             const totalAxis = 8;
 
@@ -337,9 +322,8 @@
                     .attr("class", "invisibleTick backgroundTick")
                     .call(d3.axisTop(x)
                         .tickSize((height/totalAxis * i) +1)
-                        .ticks(ticksA)
                         .tickFormat(function (d) {
-                            return d3.format(".0s")(Math.abs(d));
+                            return d3.format(".0s")(Math.abs(d)/2);
                         })
                     )
                     .select(".domain").remove()
@@ -350,9 +334,8 @@
                     .attr("class", "invisibleTick")
                     .call(d3.axisTop(x)
                         .tickSize((height/totalAxis * i) +1)
-                        .ticks(ticksA)
                         .tickFormat(function (d) {
-                            return d3.format(".0s")(Math.abs(d));
+                            return d3.format(".0s")(Math.abs(d)/2);
                         })
                     )
                     .select(".domain").remove()
@@ -362,7 +345,7 @@
                     .attr("class", "invisibleTick backgroundTick")
                     .call(d3.axisTop(x2)
                         .tickSize((height/totalAxis * i) +1)
-                        .ticks(ticksB)
+                        .ticks(2)
                         .tickValues(["20000000","40000000"])
                         .tickFormat(function (d) {
                         return d3.format(".0s")(d);
@@ -375,7 +358,7 @@
                     .attr("class", "invisibleTick")
                     .call(d3.axisTop(x2)
                         .tickSize((height/totalAxis * i) +1)
-                        .ticks(ticksB)
+                        .ticks(2)
                         .tickValues(["20000000","40000000"])
                         .tickFormat(function (d) {
                         return d3.format(".0s")(d);
@@ -385,89 +368,6 @@
 
                 
             }
-
-
-
-        // ANNOTATIONS ARE IN HERE ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------    
-        d3.csv("./data/annotations.csv",function(annotations) {
-
-
-            annotations.forEach(function(d) {
-                let theTitle = '';
-                let whichside = "start";
-                let sidecomp = 80;
-                let leftX = x(data[data.length -1].netMigration * -1)
-                let leftX2 = x(0)
-                let thisSvg = d3.select("#chart1 svg")
-
-                
-                if (d.title == '') {
-                    theTitle = populationApp.formatTime(data[d.timelocation].date)
-                } else {
-                    theTitle = d.year
-                }
-                
-                if (d.where == 'migration' || d.where == 'natural') {
-                    sidecomp = 40;
-                    mobileTextOffsetAnnotation = -120
-                } else if (d.where == 'population'){
-                    thisSvg = d3.select("#chart2 svg")
-                    mobileTextOffsetAnnotation = 0
-                    sidecomp = -margin.leftB - 10;
-                    leftX = x2(0)
-                    leftX2 = x2(40000000)
-                } else {
-                    // whichside = "end";
-                    // mobileTextOffsetAnnotation = 0
-                }
-                // Add the path using this helper function
-                // thisSvg.append('circle')
-                // .attr('cx', x(0) + margin.left)
-                // .attr('cy', y(data[d.timelocation].date))
-                // .attr('r', 50)
-                // .attr('stroke', 'black')
-                // .attr('fill', 'none');
-                
-                console.log(data[d.timelocation]);
-                
-                thisSvg.append('line')
-                    .attr('x1', leftX + margin.left)
-                    .attr('y1', y(data[d.timelocation].date) + margin.top)
-                    .attr('x2', leftX2 + margin.left)
-                    .attr('y2', y(data[d.timelocation].date) + margin.top)
-                    .attr('stroke', 'black')
-
-                thisSvg.append("text")
-                    .datum(data[d.timelocation])
-                    .attr("class","annotationtext backgroundText")
-                    .attr("x",0)
-                    .attr("y",0)
-                    .attr("dy",0.3)
-                    .attr("transform", function(d) { return "translate(" + (leftX - sidecomp - mobileTextOffsetAnnotation) + "," + (y(d.date) + margin.top) + ")"; })
-                    .text(theTitle + ": " + d.description)
-                    .style("text-anchor",whichside)
-                    .call(wrap, 124);
-
-                thisSvg.append("text")
-                    .datum(data[d.timelocation])
-                    .attr("class","annotationtext")
-                    .attr("id", function(d){
-                        return "annotationtext" + d.index
-                    })
-                    .attr("x",0)
-                    .attr("y",0)
-                    .attr("dy",0.3)
-                    .attr("transform", function(d) { return "translate(" + (leftX - sidecomp - mobileTextOffsetAnnotation) + "," + (y(d.date) + margin.top) + ")"; })
-                    .text(theTitle + ": " + d.description)
-                    .style("text-anchor",whichside)
-                    .call(wrap, 124);
-            
-            })
-        
-        })
-
-
-        // TOOLTIP IS HERE ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
 
         // Create a rect on top of the svg area: this rectangle recovers mouse position
         var focusLine = svg
@@ -593,9 +493,8 @@
                 // .call(d3.axisBottom(x).tickSize(-height*.7).tickValues([1900, 1925, 1975, 2000]))
                 .call(d3.axisTop(x)
                     .tickSize(height)
-                    .ticks(ticksA)
                     .tickFormat(function (d) {
-                        return d3.format(".0s")(Math.abs(d));
+                        return d3.format(".0s")(Math.abs(d)/2);
                     })
                 )
                 .select(".domain").remove()
@@ -618,7 +517,7 @@
 
                 let bottomChartOffset = 0;
                 if (d3.event.pageY > (height * 0.9)) {
-                    bottomChartOffset = 110
+                    bottomChartOffset = 80
                 }
                 // recover coordinate we need
                 // var x0 = x.invert(d3.mouse(this)[0]);
@@ -629,13 +528,13 @@
 
                 focusLine
                 // .attr("cx", x(selectedData.date))
-                .attr("y1", y(selectedData.date) - 30)
-                .attr("y2", y(selectedData.date) - 30)
+                .attr("y1", y(selectedData.date))
+                .attr("y2", y(selectedData.date))
                 
                 focusLineB
                 // .attr("cx", x(selectedData.date))
-                .attr("y1", y(selectedData.date) - 30)
-                .attr("y2", y(selectedData.date) - 30)
+                .attr("y1", y(selectedData.date))
+                .attr("y2", y(selectedData.date))
 
                 focusTextYearBG
                 .html(populationApp.formatTime(selectedData.date))
@@ -643,22 +542,22 @@
                 //           if (d3.event.pageX > (width/2)) {return x(selectedData.date)-180}
                 //           else {return x(selectedData.date)+15}
                 //         })
-                .attr("x", x(x.domain()[1]) - 210 -mobileTextOffset)
+                .attr("x", x(x.domain()[1]) - 210)
                 .attr("y", y(selectedData.date) - 10 - bottomChartOffset)
 
                 focusTextMigrationBG
                 .html("Net migration: " + d3.format(",")(selectedData.netMigration))
-                .attr("x", x(x.domain()[1]) - 210 -mobileTextOffset)
+                .attr("x", x(x.domain()[1]) - 210)
                 .attr("y", y(selectedData.date) + 20 - bottomChartOffset)
 
                 focusTextNaturalBG
                 .html("Natural Growth: " + d3.format(",")(selectedData.natGrowth))
-                .attr("x", x(x.domain()[1]) - 210 -mobileTextOffset)
+                .attr("x", x(x.domain()[1]) - 210)
                 .attr("y", y(selectedData.date) + 40 - bottomChartOffset)
 
                 focusTextPopulationBG
                 .html("Population: " + d3.format(",")(selectedData.Canada))
-                .attr("x", x(x.domain()[1]) - 210 -mobileTextOffset)
+                .attr("x", x(x.domain()[1]) - 210)
                 .attr("y", y(selectedData.date) + 60 - bottomChartOffset)
 
                 focusTextYear
@@ -667,22 +566,22 @@
                 //           if (d3.event.pageX > (width/2)) {return x(selectedData.date)-180}
                 //           else {return x(selectedData.date)+15}
                 //         })
-                .attr("x", x(x.domain()[1]) - 210 -mobileTextOffset)
+                .attr("x", x(x.domain()[1]) - 210)
                 .attr("y", y(selectedData.date) - 10 - bottomChartOffset)
 
                 focusTextMigration
                 .html("Net migration: " + d3.format(",")(selectedData.netMigration))
-                .attr("x", x(x.domain()[1]) - 210 -mobileTextOffset)
+                .attr("x", x(x.domain()[1]) - 210)
                 .attr("y", y(selectedData.date) + 20 - bottomChartOffset)
 
                 focusTextNatural
                 .html("Natural Growth: " + d3.format(",")(selectedData.natGrowth))
-                .attr("x", x(x.domain()[1]) - 210 -mobileTextOffset)
+                .attr("x", x(x.domain()[1]) - 210)
                 .attr("y", y(selectedData.date) + 40 - bottomChartOffset)
 
                 focusTextPopulation
                 .html("Population: " + d3.format(",")(selectedData.Canada))
-                .attr("x", x(x.domain()[1]) - 210 -mobileTextOffset)
+                .attr("x", x(x.domain()[1]) - 210)
                 .attr("y", y(selectedData.date) + 60 - bottomChartOffset)
                 }
 
@@ -690,8 +589,6 @@
                 // focus.style("opacity", 0)
                 // focusText.style("opacity", 0)
             }
-
-            // TOOLTIP END ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
 
         })
 
@@ -703,31 +600,6 @@
         populationApp.buildChart()
     }
     populationApp.init()
-
-
-    function wrap(text, width) {
-        text.each(function() {
-            var text = d3.select(this),
-                words = text.text().split(/\s+/).reverse(),
-                word,
-                line = [],
-                lineNumber = 0,
-                lineHeight = 1.2, // ems
-                y = text.attr("y"),
-                dy = parseFloat(text.attr("dy")),
-                tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
-            while (word = words.pop()) {
-            line.push(word);
-            tspan.text(line.join(" "));
-            if (tspan.node().getComputedTextLength() > width) {
-                line.pop();
-                tspan.text(line.join(" "));
-                line = [word];
-                tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
-            }
-            }
-        });
-        }
     
 
 
