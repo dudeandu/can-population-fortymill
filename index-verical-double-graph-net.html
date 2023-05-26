@@ -19,6 +19,19 @@
         /* .graphic-wrapper { */
         /* max-width: 660px; */
         /* } */
+
+        #legend-dot-1{
+            background-color: #4b76b4;
+        }
+
+        #legend-dot-2{
+            background-color: #EEAA33;
+        }
+
+        #legend-dot-3{
+            background-color: #009988;
+        }
+
         .graphicFlex-container {
             display: flex;
         }
@@ -33,6 +46,7 @@
 
         svg {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif;
+            font-size: 14px;
         }
 
         .natGrowthcomp,
@@ -47,6 +61,10 @@
         svg .invisibleTick .tick line{
             opacity: 0;
         }
+
+        .annotation {
+            z-index: -5;
+        }
         
         .backgroundTick text,
         .backgroundText {
@@ -58,6 +76,10 @@
         }
         .backgroundText {
             stroke-width: 8px;
+        }
+
+        .focusRect {
+            fill: #F8F8F8";
         }
 
         @media (max-width: 650px) {
@@ -80,10 +102,13 @@
 
         <div class="graphic-legend">
             <div class="graphic-legend-container">
-                <div class="graphic-legend-dot" id="legend-dot-1"></div><p class="graphic-legend-text">Legend text 1</p>
+                <div class="graphic-legend-dot" id="legend-dot-1"></div><p class="graphic-legend-text">Natural growth</p>
             </div>
             <div class="graphic-legend-container">
-                <div class="graphic-legend-dot" id="legend-dot-2"></div><p class="graphic-legend-text">Legend text 2</p>
+                <div class="graphic-legend-dot" id="legend-dot-2"></div><p class="graphic-legend-text">Net migration</p>
+            </div>
+            <div class="graphic-legend-container">
+                <div class="graphic-legend-dot" id="legend-dot-3"></div><p class="graphic-legend-text">Canadian population</p>
             </div>
         </div>
     </div>
@@ -151,12 +176,12 @@
 
         if (chartWidth <= 650) {
             // set the dimensions and margins of the graph
-            margin = {top: 100, right: 30, bottom: 40, left: 40, leftB: 60},
-                width = chartWidth - margin.left - margin.right,
-                width2 = chartWidth2 - margin.left - margin.right,
-                height = 6000 - margin.top - margin.bottom;
+            // margin = {top: 100, right: 10, bottom: 40, left: 10, leftB: 30},
+            //     width = chartWidth - margin.left - margin.right,
+            //     width2 = chartWidth2 - margin.left - margin.right,
+            //     height = 6000 - margin.top - margin.bottom;
 
-            mobileTextOffsetAnnotation = 0
+            // mobileTextOffsetAnnotation = 0
         }
 
         // append the svg object to the body of the page
@@ -218,10 +243,10 @@
                     return populationApp.formatTime(d);
                 })
             svg.append("g")
-            .attr("class","myYaxis")
+                .attr("class","myYaxis")
                 .call(yAxis);
             svg2.append("g")
-            .attr("class","myYaxis")
+                .attr("class","myYaxis")
                 .call(yAxis);
             
             // Add Y axis
@@ -302,6 +327,7 @@
             .enter()
             .append("path")
             .attr("class", function(d) { return "myArea " + d.key; })
+            // .attr("transform","translate(0,30)")
             .style("fill", function(d) { return color(d.key); })
             .attr("d", area)
 
@@ -320,6 +346,7 @@
         area2.append("path")
             .datum(data)
             .attr("class", "myArea")  // I add the class myArea to be able to modify it later on.
+            // .attr("transform","translate(0,30)")
             // .attr("fill", "#005789")
             .attr("fill", "#009988")
             .attr("fill-opacity", .8)
@@ -332,7 +359,7 @@
             const totalAxis = 8;
 
             for ( let i = 1; i < totalAxis; i++) {
-                svg.append("g")
+                svg.select("myYaxis")
                     .attr("transform", "translate(0," + height + ")")
                     .attr("class", "invisibleTick backgroundTick")
                     .call(d3.axisTop(x)
@@ -345,7 +372,7 @@
                     .select(".domain").remove()
 
 
-                svg.append("g")
+                svg.select("myYaxis")
                     .attr("transform", "translate(0," + height + ")")
                     .attr("class", "invisibleTick")
                     .call(d3.axisTop(x)
@@ -357,7 +384,7 @@
                     )
                     .select(".domain").remove()
 
-                svg2.append("g")
+                svg2.select("myYaxis")
                     .attr("transform", "translate(0," + height + ")")
                     .attr("class", "invisibleTick backgroundTick")
                     .call(d3.axisTop(x2)
@@ -370,7 +397,7 @@
                     )
                     .select(".domain").remove()
 
-                svg2.append("g")
+                svg2.select("myYaxis")
                     .attr("transform", "translate(0," + height + ")")
                     .attr("class", "invisibleTick")
                     .call(d3.axisTop(x2)
@@ -388,87 +415,7 @@
 
 
 
-        // ANNOTATIONS ARE IN HERE ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------    
-        d3.csv("./data/annotations.csv",function(annotations) {
-
-
-            annotations.forEach(function(d) {
-                let theTitle = '';
-                let whichside = "start";
-                let sidecomp = 80;
-                let leftX = x(data[data.length -1].netMigration * -1)
-                let leftX2 = x(0)
-                let thisSvg = d3.select("#chart1 svg")
-
-                
-                if (d.title == '') {
-                    theTitle = populationApp.formatTime(data[d.timelocation].date)
-                } else {
-                    theTitle = d.year
-                }
-                
-                if (d.where == 'migration' || d.where == 'natural') {
-                    sidecomp = 40;
-                    mobileTextOffsetAnnotation = -120
-                } else if (d.where == 'population'){
-                    thisSvg = d3.select("#chart2 svg")
-                    mobileTextOffsetAnnotation = 0
-                    sidecomp = -margin.leftB - 10;
-                    leftX = x2(0)
-                    leftX2 = x2(40000000)
-                } else {
-                    // whichside = "end";
-                    // mobileTextOffsetAnnotation = 0
-                }
-                // Add the path using this helper function
-                // thisSvg.append('circle')
-                // .attr('cx', x(0) + margin.left)
-                // .attr('cy', y(data[d.timelocation].date))
-                // .attr('r', 50)
-                // .attr('stroke', 'black')
-                // .attr('fill', 'none');
-                
-                console.log(data[d.timelocation]);
-                
-                thisSvg.append('line')
-                    .attr('x1', leftX + margin.left)
-                    .attr('y1', y(data[d.timelocation].date) + margin.top)
-                    .attr('x2', leftX2 + margin.left)
-                    .attr('y2', y(data[d.timelocation].date) + margin.top)
-                    .attr('stroke', 'black')
-
-                thisSvg.append("text")
-                    .datum(data[d.timelocation])
-                    .attr("class","annotationtext backgroundText")
-                    .attr("x",0)
-                    .attr("y",0)
-                    .attr("dy",0.3)
-                    .attr("transform", function(d) { return "translate(" + (leftX - sidecomp - mobileTextOffsetAnnotation) + "," + (y(d.date) + margin.top) + ")"; })
-                    .text(theTitle + ": " + d.description)
-                    .style("text-anchor",whichside)
-                    .call(wrap, 124);
-
-                thisSvg.append("text")
-                    .datum(data[d.timelocation])
-                    .attr("class","annotationtext")
-                    .attr("id", function(d){
-                        return "annotationtext" + d.index
-                    })
-                    .attr("x",0)
-                    .attr("y",0)
-                    .attr("dy",0.3)
-                    .attr("transform", function(d) { return "translate(" + (leftX - sidecomp - mobileTextOffsetAnnotation) + "," + (y(d.date) + margin.top) + ")"; })
-                    .text(theTitle + ": " + d.description)
-                    .style("text-anchor",whichside)
-                    .call(wrap, 124);
-            
-            })
-        
-        })
-
-
-        // TOOLTIP IS HERE ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
-
+        // FOCUS LINE HERE --- Needs to be behind the annotations ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------    
         // Create a rect on top of the svg area: this rectangle recovers mouse position
         var focusLine = svg
             .append("line")
@@ -492,6 +439,136 @@
             .attr("x1", x2(x2.domain()[0]))
             .attr("y2", y(0))
             .attr("x2", x2(x2.domain()[1]));
+
+
+
+        // ANNOTATIONS ARE IN HERE ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------    
+
+        svg.append('g')
+            .attr("class","annotation")
+
+        svg2.append('g')
+            .attr("class","annotation")
+
+        d3.csv("./data/annotations.csv",function(annotations) {
+
+
+            annotations.forEach(function(d) {
+                let theTitle = '';
+                let whichside = "start";
+                let sidecomp = 80;
+                let leftX = x(data[data.length -1].netMigration * -1)
+                let leftX2 = x(0)
+                let thisSvg = d3.select("#chart1 svg .annotation")
+
+                
+                if (d.title == '') {
+                    theTitle = populationApp.formatTime(data[d.timelocation].date)
+                } else {
+                    theTitle = d.year
+                }
+                
+                if (d.where == 'migration' || d.where == 'natural') {
+                    sidecomp = 40;
+                    mobileTextOffsetAnnotation = -120
+                } else if (d.where == 'population'){
+                    thisSvg = d3.select("#chart2 svg .annotation")
+                    mobileTextOffsetAnnotation = 0
+                    sidecomp =- 10;
+                    leftX = x2(0)
+                    leftX2 = x2(40000000)
+                } else {
+                    // whichside = "end";
+                    // mobileTextOffsetAnnotation = 0
+                }
+                // Add the path using this helper function
+                // thisSvg
+                    // .append('g')
+                    // .append('circle')
+                // .attr('cx', x(0) + margin.left)
+                // .attr('cy', y(data[d.timelocation].date))
+                // .attr('r', 50)
+                // .attr('stroke', 'black')
+                // .attr('fill', 'none');
+                                
+                thisSvg
+                    // .append('g')
+                    // .attr("class","annotation")
+                    .append('line')
+                    .attr('x1', leftX)
+                    .attr('y1', y(data[d.timelocation].date))
+                    .attr('x2', leftX2)
+                    .attr('y2', y(data[d.timelocation].date))
+                    .attr('stroke', 'black')
+
+                thisSvg
+                    // .append('g')
+                    // .attr("class","annotation")
+                    .append("text")
+                    .datum(data[d.timelocation])
+                    .attr("class","annotationtext backgroundText")
+                    .attr("x",0)
+                    .attr("y",0)
+                    .attr("dy",0.3)
+                    .attr("transform", function(d) { return "translate(" + (leftX - sidecomp - mobileTextOffsetAnnotation) + "," + (y(d.date)) + ")"; })
+                    .text(theTitle + ": " + d.description)
+                    .style("text-anchor",whichside)
+                    .call(wrap, 124);
+
+                thisSvg
+                    // .append('g')
+                    // .attr("class","annotation")
+                    .append("text")
+                    .datum(data[d.timelocation])
+                    .attr("class","annotationtext")
+                    .attr("id", function(d){
+                        return "annotationtext" + d.index
+                    })
+                    .attr("x",0)
+                    .attr("y",0)
+                    .attr("dy",0.3)
+                    .attr("transform", function(d) { return "translate(" + (leftX - sidecomp - mobileTextOffsetAnnotation) + "," + (y(d.date)) + ")"; })
+                    .text(theTitle + ": " + d.description)
+                    .style("text-anchor",whichside)
+                    .call(wrap, 124);
+            
+            })
+        
+        })
+
+        svg.append("g")
+                .attr("transform", "translate(0," + height + ")")
+                // .call(d3.axisBottom(x).tickSize(-height*.7).tickValues([1900, 1925, 1975, 2000]))
+                .call(d3.axisTop(x)
+                    .tickSize(height)
+                    .ticks(ticksA)
+                    .tickFormat(function (d) {
+                        return d3.format(".0s")(Math.abs(d));
+                    })
+                )
+                .select(".domain").remove()
+
+
+        // TOOLTIP IS HERE ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
+
+        // Create a rect on top of the svg area: this rectangle recovers mouse position
+        var focusRect = svg
+            .append('rect')
+            .attr("class", "focusRect")
+            // .style("fill", function(){
+            //     if (chartWidth <= 540) {
+            //         return "#000"
+            //     } else {
+            //         return "#F8F8F8"
+            //     }
+            // })
+            .style("fill", "#F8F8F8")
+            .style("fill", "#F8F8F8")
+            .style("stroke", "#111")
+            .style("stroke-width","1.5px")
+            .style("pointer-events", "all")
+            .attr('width', "200px")
+            .attr('height', "120px")
 
         // Create the text that travels along the curve of chart
         var focusTextYearBG = svg
@@ -587,21 +664,9 @@
         // This allows to find the closest X index of the mouse:
         var bisect = d3.bisector(function(d) { return d.date; }).left;
 
-
-            svg.append("g")
-                .attr("transform", "translate(0," + height + ")")
-                // .call(d3.axisBottom(x).tickSize(-height*.7).tickValues([1900, 1925, 1975, 2000]))
-                .call(d3.axisTop(x)
-                    .tickSize(height)
-                    .ticks(ticksA)
-                    .tickFormat(function (d) {
-                        return d3.format(".0s")(Math.abs(d));
-                    })
-                )
-                .select(".domain").remove()
-
             // What happens when the mouse move -> show the annotations at the right positions.
             function mouseover() {
+                focusRect.style("opacity",1)
                 focusLine.style("opacity",1)
                 focusLineB.style("opacity",1)
                 focusTextYearBG.style("opacity",1)
@@ -627,63 +692,74 @@
                 var i = bisect(data, y0, 1);
                 selectedData = data[i]
 
+                focusRect
+                // .attr("cx", x(selectedData.date))
+                // .attr("y1", y(selectedData.date) - 30)
+                .attr("x", x(x.domain()[1]) - 230 -mobileTextOffset)
+                // .attr("y2", y(selectedData.date) - 30)
+                .attr("y", y(selectedData.date)-40)
+
                 focusLine
                 // .attr("cx", x(selectedData.date))
-                .attr("y1", y(selectedData.date) - 30)
-                .attr("y2", y(selectedData.date) - 30)
+                // .attr("y1", y(selectedData.date) - 30)
+                .attr("y1", y(selectedData.date))
+                // .attr("y2", y(selectedData.date) - 30)
+                .attr("y2", y(selectedData.date))
                 
                 focusLineB
                 // .attr("cx", x(selectedData.date))
-                .attr("y1", y(selectedData.date) - 30)
-                .attr("y2", y(selectedData.date) - 30)
+                // .attr("y1", y(selectedData.date) - 30)
+                .attr("y1", y(selectedData.date))
+                // .attr("y2", y(selectedData.date) - 30)
+                .attr("y2", y(selectedData.date))
 
                 focusTextYearBG
-                .html(populationApp.formatTime(selectedData.date))
-                // .attr("x", function() {
-                //           if (d3.event.pageX > (width/2)) {return x(selectedData.date)-180}
-                //           else {return x(selectedData.date)+15}
-                //         })
+                .text(populationApp.formatTime(selectedData.date))
                 .attr("x", x(x.domain()[1]) - 210 -mobileTextOffset)
                 .attr("y", y(selectedData.date) - 10 - bottomChartOffset)
+                // .call(wrap, 200)
 
                 focusTextMigrationBG
-                .html("Net migration: " + d3.format(",")(selectedData.netMigration))
+                .text("Net migration: " + d3.format(",")(selectedData.netMigration))
                 .attr("x", x(x.domain()[1]) - 210 -mobileTextOffset)
                 .attr("y", y(selectedData.date) + 20 - bottomChartOffset)
+                // .call(wrap, 200)
 
                 focusTextNaturalBG
-                .html("Natural Growth: " + d3.format(",")(selectedData.natGrowth))
+                .text("Natural Growth: " + d3.format(",")(selectedData.natGrowth))
                 .attr("x", x(x.domain()[1]) - 210 -mobileTextOffset)
                 .attr("y", y(selectedData.date) + 40 - bottomChartOffset)
+                // .call(wrap, 200)
 
                 focusTextPopulationBG
-                .html("Population: " + d3.format(",")(selectedData.Canada))
+                .text("Population: " + d3.format(",")(selectedData.Canada))
                 .attr("x", x(x.domain()[1]) - 210 -mobileTextOffset)
                 .attr("y", y(selectedData.date) + 60 - bottomChartOffset)
+                // .call(wrap, 200)
 
                 focusTextYear
-                .html(populationApp.formatTime(selectedData.date))
-                // .attr("x", function() {
-                //           if (d3.event.pageX > (width/2)) {return x(selectedData.date)-180}
-                //           else {return x(selectedData.date)+15}
-                //         })
+                .text(populationApp.formatTime(selectedData.date))
                 .attr("x", x(x.domain()[1]) - 210 -mobileTextOffset)
                 .attr("y", y(selectedData.date) - 10 - bottomChartOffset)
+                // .call(wrap, 200)
 
                 focusTextMigration
-                .html("Net migration: " + d3.format(",")(selectedData.netMigration))
+                .text("Net migration: " + d3.format(",")(selectedData.netMigration))
                 .attr("x", x(x.domain()[1]) - 210 -mobileTextOffset)
                 .attr("y", y(selectedData.date) + 20 - bottomChartOffset)
+                // .call(wrap, 200)
 
                 focusTextNatural
-                .html("Natural Growth: " + d3.format(",")(selectedData.natGrowth))
+                .text("Natural Growth: " + d3.format(",")(selectedData.natGrowth))
                 .attr("x", x(x.domain()[1]) - 210 -mobileTextOffset)
                 .attr("y", y(selectedData.date) + 40 - bottomChartOffset)
+                // .call(wrap, 200)
 
                 focusTextPopulation
-                .html("Population: " + d3.format(",")(selectedData.Canada))
+                .text("Population: " + d3.format(",")(selectedData.Canada))
                 .attr("x", x(x.domain()[1]) - 210 -mobileTextOffset)
                 .attr("y", y(selectedData.date) + 60 - bottomChartOffset)
+                // .call(wrap, 200)
                 }
 
             function mouseout() {
