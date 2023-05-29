@@ -25,7 +25,7 @@
         }
 
         #legend-dot-2{
-            background-color: #EEAA33;
+            background-color: #701C0A;
         }
 
         #legend-dot-3{
@@ -156,10 +156,13 @@
         const chartWidth =  parseInt(d3.select('#chart1').style('width'))
         const chartWidth2 =  parseInt(d3.select('#chart2').style('width'))
 
+        let years = [];
+
         let mobileTextOffset = 0
         let mobileTextOffsetAnnotation = 0
         let ticksA = 8;
         let ticksB = 2;
+        let aligner = 30;
         
         if (chartWidth <= 695) {
             //do something here on mobile versions
@@ -193,6 +196,22 @@
             .attr("transform",
                 "translate(" + margin.left + "," + margin.top + ")");
 
+        svg.append("defs")
+            .append("marker")
+            .attr("id", "arrow")
+            .attr("markerUnits", "strokeWidth")
+            .attr("markerWidth", "12")
+            .attr("markerHeight", "12")
+            .attr("viewBox", "0 0 12 12")
+            .attr("refX", "6")
+            .attr("refY", "6")
+            .attr("orient", "auto")
+            .append("path")
+            .attr("d", "M2,2 L10,6 L2,10 L6,6 L2,2")
+            .style("fill", "#FF0000")
+            
+
+
         // append the svg object to the body of the page
         var svg2 = d3.select("#chart2")
         .append("svg")
@@ -215,9 +234,11 @@
             d.netMigrationcomp = +d['netMigration-comp']
             d.Canada = +d.Canada
             d.date = populationApp.parseYear(d.year)
+            years.push(populationApp.parseYear(d.year))
         });
          
         console.log(data)
+        years.shift()
 
         
         
@@ -226,7 +247,8 @@
         // var keys = ["percentofincreaseMIGRATION-comp","percentofincreaseMIGRATION","percentofincreaseNATURAL","percentofincreaseNATURAL-comp"]
         var keys = ["natGrowthcomp","natGrowth","netMigration","netMigrationcomp"]
 
-        // SETUPS AXIS HERE ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
+        // SETUPS AXIS HERE ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
+        
 
         // Add X axis
         // var x = d3.scaleLinear()
@@ -235,18 +257,24 @@
                 .domain(d3.extent(data, function(d) { return d.date; }))
                 .range([ 0, height ]);
             var yAxis = d3.axisLeft()
-                .scale(y)
+            .scale(y)
+            .tickValues(years)
+
                 // .ticks(8,d3.format(".3s"));
-                // .tickSize(width)
+                // .tickValues(function(d){
+                //     console.log(d)
+                // })
                 .ticks(100)
                 .tickFormat(function (d) {
                     return populationApp.formatTime(d);
                 })
             svg.append("g")
                 .attr("class","myYaxis")
+                .attr("transform", "translate(0," + (-aligner) + ")")
                 .call(yAxis);
             svg2.append("g")
                 .attr("class","myYaxis")
+                .attr("transform", "translate(0," + (-aligner) + ")")
                 .call(yAxis);
             
             // Add Y axis
@@ -265,7 +293,6 @@
                         return d3.format(".0s")(Math.abs(d));
                     })
                 )
-                .select(".domain").remove()
             
                 // Add Y axis
             var x2 = d3.scaleLinear()
@@ -280,7 +307,6 @@
                         return d3.format(".0s")(d);
                     })
                 )
-                .select(".domain").remove()
 
             svg2.append("g")
                 .attr("transform", "translate(0," + height + ")")
@@ -291,7 +317,8 @@
                         return d3.format(".0s")(d);
                     })
                 )
-                .select(".domain").remove()
+
+                d3.selectAll(".domain").remove()
                 
             // Customization
             // svg.selectAll(".tick line").attr("stroke", "#F0F0F0")
@@ -300,8 +327,8 @@
         var color = d3.scaleOrdinal()
             .domain(keys)
             // .range(d3.schemeDark2);
-            // .range(['#f8f8f8', '#4b76b4', '#00429d','#f8f8f8']);
-            .range(['#f8f8f8', '#4b76b4', '#EEAA33','#f8f8f8']);
+            // .range(['#f8f8f8', '#4b76b4', '#EEAA33','#f8f8f8']);
+            .range(['#f8f8f8', '#4b76b4', '#701C0A','#f8f8f8']);
         
         // Making PATHS HERE ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------    
 
@@ -455,9 +482,10 @@
 
             annotations.forEach(function(d) {
                 let theTitle = '';
-                let whichside = "start";
+                let whichside = "end";
                 let sidecomp = 80;
-                let leftX = x(data[data.length -1].netMigration * -1)
+                // let leftX = x(data[data.length -1].netMigration * -1)
+                let leftX = (x(-20000)-width/8)
                 let leftX2 = x(0)
                 let thisSvg = d3.select("#chart1 svg .annotation")
 
@@ -473,6 +501,7 @@
                     mobileTextOffsetAnnotation = -120
                 } else if (d.where == 'population'){
                     thisSvg = d3.select("#chart2 svg .annotation")
+                    whichside = "start"
                     mobileTextOffsetAnnotation = 0
                     sidecomp =- 10;
                     leftX = x2(0)
@@ -490,47 +519,88 @@
                 // .attr('r', 50)
                 // .attr('stroke', 'black')
                 // .attr('fill', 'none');
-                                
-                thisSvg
-                    // .append('g')
-                    // .attr("class","annotation")
-                    .append('line')
-                    .attr('x1', leftX)
-                    .attr('y1', y(data[d.timelocation].date))
-                    .attr('x2', leftX2)
-                    .attr('y2', y(data[d.timelocation].date))
-                    .attr('stroke', 'black')
 
-                thisSvg
-                    // .append('g')
-                    // .attr("class","annotation")
+                if (d.where == 'migration' || d.where == 'natural') {
+                    svg.append("path")
+                    .datum(data[[d.timelocation]])
+                    .attr("class", "annotationarrow")
+                    .attr("id", "annotationarrow4")
+                    .style("fill", "#222")
+                    .attr("d", d3.symbol().type(d3.symbolTriangle).size(40))
+                    .attr("transform", function(d) { return "translate(" 
+                    + x(-20000) 
+                    + "," 
+                    + (y(d.date)-aligner) 
+                    + ")rotate(90)"; });
+
+                    svg.append("path")
+                    .datum(data[[d.timelocation]])
+                    .attr("class", "annotationpath")
+                    .attr("id", "annotationpath4")
+                    .style("fill", "none")
+                    .attr("stroke","#222")  
+                    .attr("stroke-width",1.2)  
+                    .attr("d", function(d) { return "M" 
+                        + leftX 
+                        + "," 
+                        + (y(d.date)-aligner+width/8) 
+                        + " C" 
+                        + leftX 
+                        + "," 
+                        + (y(d.date)-aligner) 
+                        + " " 
+                        + (x(-20000)) 
+                        + "," 
+                        + (y(d.date)-aligner) 
+                        + " " 
+                        + (x(-20000))
+                        + "," 
+                        + (y(d.date)-aligner) 
+                        ; 
+                    });
+                }
+                             
+                // thisSvg
+                //     // .append('g')
+                //     // .attr("class","annotation")
+                //     .append('line')
+                //     .attr('x1', leftX)
+                //     .attr('y1', y(data[d.timelocation].date))
+                //     .attr('x2', leftX2)
+                //     .attr('y2', y(data[d.timelocation].date))
+                //     .attr('stroke', 'black')
+
+                for (let j = 0; j < 2; j++) {
+                    const classer = ["annotationtext backgroundText", "annotationtext"]
+                    thisSvg
                     .append("text")
                     .datum(data[d.timelocation])
-                    .attr("class","annotationtext backgroundText")
-                    .attr("x",0)
-                    .attr("y",0)
-                    .attr("dy",0.3)
-                    .attr("transform", function(d) { return "translate(" + (leftX - sidecomp - mobileTextOffsetAnnotation) + "," + (y(d.date)) + ")"; })
-                    .text(theTitle + ": " + d.description)
-                    .style("text-anchor",whichside)
-                    .call(wrap, 124);
-
-                thisSvg
-                    // .append('g')
-                    // .attr("class","annotation")
-                    .append("text")
-                    .datum(data[d.timelocation])
-                    .attr("class","annotationtext")
+                    .attr("class",function(){
+                        return classer[j]
+                    })
                     .attr("id", function(d){
-                        return "annotationtext" + d.index
+                        if (j == 0){
+                            return "backgroundAnnotationtext" + d.index
+                        } else {
+                            return "annotationtext" + d.index                          
+                        }
                     })
                     .attr("x",0)
                     .attr("y",0)
                     .attr("dy",0.3)
-                    .attr("transform", function(d) { return "translate(" + (leftX - sidecomp - mobileTextOffsetAnnotation) + "," + (y(d.date)) + ")"; })
+                    .attr("transform", function(d) { 
+                        return "translate(" 
+                            // + (leftX - sidecomp - mobileTextOffsetAnnotation) 
+                            + leftX
+                            + "," 
+                            // + (y(d.date)) 
+                            + (y(d.date)-10+width/8) 
+                            + ")"; 
+                        })
                     .text(theTitle + ": " + d.description)
                     .style("text-anchor",whichside)
                     .call(wrap, 124);
+                }
             
             })
         
@@ -549,66 +619,97 @@
                 .select(".domain").remove()
 
 
+        // var line = svg.append("line")
+        //      .attr("x1",50)  
+        //      .attr("y1",10)  
+        //      .attr("x2",200)  
+        //      .attr("y2",50)  
+        //      .attr("stroke","red")  
+        //      .attr("stroke-width",2)  
+        //      .attr("marker-end","url(#arrow)");  
+
+
         // TOOLTIP IS HERE ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
 
         // Create a rect on top of the svg area: this rectangle recovers mouse position
         var focusRect = svg
             .append('rect')
             .attr("class", "focusRect")
-            // .style("fill", function(){
-            //     if (chartWidth <= 540) {
-            //         return "#000"
-            //     } else {
-            //         return "#F8F8F8"
-            //     }
-            // })
-            .style("fill", "#F8F8F8")
+            .style("opacity", 0)
             .style("fill", "#F8F8F8")
             .style("stroke", "#111")
             .style("stroke-width","1.5px")
             .style("pointer-events", "all")
             .attr('width', "200px")
             .attr('height', "120px")
+        
+        //create three rectangles that will be displayed behind the numbers on the tooltip
+        var focusRectMigrationNumberBackbox = svg
+            .append('rect')
+            .attr("class", "focusRect")
+            .style("opacity", 0)
+            .style("fill", "#4b76b4")
+        var focusRectNaturalNumberBackbox = svg
+            .append('rect')
+            .attr("class", "focusRect")
+            .style("opacity", 0)
+            .style("fill", "#701C0A")
+        var focusRectPopulationNumberBackbox = svg
+            .append('rect')
+            .attr("class", "focusRect")
+            .style("opacity", 0)
+            .style("fill", "#009988")
 
         // Create the text that travels along the curve of chart
-        var focusTextYearBG = svg
+        var focusTextYearNumber = svg
         .append('g')
+        .attr("class", "tooltipTextNode")
         .append('text')
-            .attr("class", "backgroundText")
+            // .attr("class", "backgroundText")
             .style("opacity", 0)
             .attr("text-anchor", "right")
             .attr("alignment-baseline", "center")
 
         // Create the text that travels along the curve of chart
-        var focusTextMigrationBG = svg
+        var focusTextMigrationNumber = svg
         .append('g')
+        .attr("id", "focusTextMigrationNumber")
+        .attr("class", "tooltipTextNode tooltipNumber")
         .append('text')
-            .attr("class", "backgroundText")
+            // .attr("class", "backgroundText")
             .style("opacity", 0)
+            .style("fill", "#F8F8F8")
             .attr("text-anchor", "right")
             .attr("alignment-baseline", "center")
 
         // Create the text that travels along the curve of chart
-        var focusTextNaturalBG = svg
+        var focusTextNaturalNumber = svg
         .append('g')
+        .attr("id", "focusTextNaturalNumber")
+        .attr("class", "tooltipTextNode tooltipNumber")
         .append('text')
-            .attr("class", "backgroundText")
+            // .attr("class", "backgroundText")
             .style("opacity", 0)
+            .style("fill", "#F8F8F8")
             .attr("text-anchor", "right")
             .attr("alignment-baseline", "center")
 
         // Create the text that travels along the curve of chart
-        var focusTextPopulationBG = svg
+        var focusTextPopulationNumber = svg
         .append('g')
+        .attr("id", "focusTextPopulationNumber")
+        .attr("class", "tooltipTextNode tooltipNumber")
         .append('text')
-            .attr("class", "backgroundText")
+            // .attr("class", "backgroundText")
             .style("opacity", 0)
+            .style("fill", "#F8F8F8")
             .attr("text-anchor", "right")
             .attr("alignment-baseline", "center")
 
         // Create the text that travels along the curve of chart
         var focusTextYear = svg
         .append('g')
+        .attr("class", "tooltipTextNode")
         .append('text')
             .style("opacity", 0)
             .attr("text-anchor", "right")
@@ -617,6 +718,7 @@
         // Create the text that travels along the curve of chart
         var focusTextMigration = svg
         .append('g')
+        .attr("class", "tooltipTextNode")
         .append('text')
             .style("opacity", 0)
             .attr("text-anchor", "right")
@@ -625,6 +727,7 @@
         // Create the text that travels along the curve of chart
         var focusTextNatural = svg
         .append('g')
+        .attr("class", "tooltipTextNode")
         .append('text')
             .style("opacity", 0)
             .attr("text-anchor", "right")
@@ -633,6 +736,7 @@
         // Create the text that travels along the curve of chart
         var focusTextPopulation = svg
         .append('g')
+        .attr("class", "tooltipTextNode")
         .append('text')
             .style("opacity", 0)
             .attr("text-anchor", "right")
@@ -669,10 +773,13 @@
                 focusRect.style("opacity",1)
                 focusLine.style("opacity",1)
                 focusLineB.style("opacity",1)
-                focusTextYearBG.style("opacity",1)
-                focusTextMigrationBG.style("opacity",1)
-                focusTextNaturalBG.style("opacity",1)
-                focusTextPopulationBG.style("opacity",1)
+                focusRectMigrationNumberBackbox.style("opacity",1)
+                focusRectNaturalNumberBackbox.style("opacity",1)
+                focusRectPopulationNumberBackbox.style("opacity",1)
+                focusTextYearNumber.style("opacity",1)
+                focusTextMigrationNumber.style("opacity",1)
+                focusTextNaturalNumber.style("opacity",1)
+                focusTextPopulationNumber.style("opacity",1)
                 focusTextYear.style("opacity",1)
                 focusTextMigration.style("opacity",1)
                 focusTextNatural.style("opacity",1)
@@ -686,85 +793,105 @@
                     bottomChartOffset = 110
                 }
                 // recover coordinate we need
-                // var x0 = x.invert(d3.mouse(this)[0]);
                 var y0 = y.invert(d3.mouse(this)[1]);
-                // console.log(d3.mouse(this));
                 var i = bisect(data, y0, 1);
                 selectedData = data[i]
 
                 focusRect
-                // .attr("cx", x(selectedData.date))
-                // .attr("y1", y(selectedData.date) - 30)
                 .attr("x", x(x.domain()[1]) - 230 -mobileTextOffset)
-                // .attr("y2", y(selectedData.date) - 30)
-                .attr("y", y(selectedData.date)-40)
+                .attr("y", y(selectedData.date)-70 -bottomChartOffset)
 
                 focusLine
-                // .attr("cx", x(selectedData.date))
-                // .attr("y1", y(selectedData.date) - 30)
-                .attr("y1", y(selectedData.date))
-                // .attr("y2", y(selectedData.date) - 30)
-                .attr("y2", y(selectedData.date))
+                .attr("y1", y(selectedData.date) - 30)
+                .attr("y2", y(selectedData.date) - 30)
                 
                 focusLineB
-                // .attr("cx", x(selectedData.date))
-                // .attr("y1", y(selectedData.date) - 30)
-                .attr("y1", y(selectedData.date))
-                // .attr("y2", y(selectedData.date) - 30)
-                .attr("y2", y(selectedData.date))
+                .attr("y1", y(selectedData.date) - 30)
+                .attr("y2", y(selectedData.date) - 30)
 
-                focusTextYearBG
+                function getBB(d) {
+                    d.bbox = d.node().getBBox()
+                }
+
+                focusTextYearNumber
                 .text(populationApp.formatTime(selectedData.date))
                 .attr("x", x(x.domain()[1]) - 210 -mobileTextOffset)
-                .attr("y", y(selectedData.date) - 10 - bottomChartOffset)
+                .attr("y", y(selectedData.date) - 10 - bottomChartOffset - aligner)
                 // .call(wrap, 200)
 
-                focusTextMigrationBG
-                .text("Net migration: " + d3.format(",")(selectedData.netMigration))
-                .attr("x", x(x.domain()[1]) - 210 -mobileTextOffset)
-                .attr("y", y(selectedData.date) + 20 - bottomChartOffset)
-                // .call(wrap, 200)
-
-                focusTextNaturalBG
-                .text("Natural Growth: " + d3.format(",")(selectedData.natGrowth))
-                .attr("x", x(x.domain()[1]) - 210 -mobileTextOffset)
-                .attr("y", y(selectedData.date) + 40 - bottomChartOffset)
-                // .call(wrap, 200)
-
-                focusTextPopulationBG
-                .text("Population: " + d3.format(",")(selectedData.Canada))
-                .attr("x", x(x.domain()[1]) - 210 -mobileTextOffset)
-                .attr("y", y(selectedData.date) + 60 - bottomChartOffset)
-                // .call(wrap, 200)
-
+                focusTextMigrationNumber
+                .text(d3.format(",")(selectedData.netMigration))
+                .attr("x", x(x.domain()[1]) - 110 -mobileTextOffset)
+                .attr("y", y(selectedData.date) + 20 - bottomChartOffset - aligner)
+                .call(getBB);
+                focusRectMigrationNumberBackbox
+                    .attr("x", x(x.domain()[1]) - 115 -mobileTextOffset)
+                    .attr("y", y(selectedData.date) + 5 - bottomChartOffset - aligner)
+                    .attr('width', focusTextMigrationNumber.bbox.width + 10)
+                    .attr('height', focusTextMigrationNumber.bbox.height + 1)
+                
+                focusTextNaturalNumber
+                .text(d3.format(",")(selectedData.natGrowth))
+                .attr("x", x(x.domain()[1]) - 100 -mobileTextOffset)
+                .attr("y", y(selectedData.date) + 40 - bottomChartOffset - aligner)
+                .call(getBB);
+                focusRectNaturalNumberBackbox
+                    .attr("x", x(x.domain()[1]) - 105 -mobileTextOffset)
+                    .attr("y", y(selectedData.date) + 25 - bottomChartOffset - aligner)
+                    .attr('width', focusTextNaturalNumber.bbox.width + 10)
+                    .attr('height', focusTextNaturalNumber.bbox.height + 1)
+                
+                focusTextPopulationNumber
+                .text(d3.format(",")(selectedData.Canada))
+                .attr("x", x(x.domain()[1]) - 130 -mobileTextOffset)
+                .attr("y", y(selectedData.date) + 60 - bottomChartOffset - aligner)
+                .call(getBB);
+                focusRectPopulationNumberBackbox
+                    .attr("x", x(x.domain()[1]) - 135 -mobileTextOffset)
+                    .attr("y", y(selectedData.date) + 45 - bottomChartOffset - aligner)
+                    .attr('width', focusTextPopulationNumber.bbox.width + 10)
+                    .attr('height', focusTextPopulationNumber.bbox.height + 1)
+                
                 focusTextYear
                 .text(populationApp.formatTime(selectedData.date))
                 .attr("x", x(x.domain()[1]) - 210 -mobileTextOffset)
-                .attr("y", y(selectedData.date) - 10 - bottomChartOffset)
+                .attr("y", y(selectedData.date) - 10 - bottomChartOffset - aligner)
                 // .call(wrap, 200)
 
                 focusTextMigration
-                .text("Net migration: " + d3.format(",")(selectedData.netMigration))
+                .text("Net migration: ")
                 .attr("x", x(x.domain()[1]) - 210 -mobileTextOffset)
-                .attr("y", y(selectedData.date) + 20 - bottomChartOffset)
+                .attr("y", y(selectedData.date) + 20 - bottomChartOffset - aligner)
                 // .call(wrap, 200)
 
                 focusTextNatural
-                .text("Natural Growth: " + d3.format(",")(selectedData.natGrowth))
+                .text("Natural Growth: ")
                 .attr("x", x(x.domain()[1]) - 210 -mobileTextOffset)
-                .attr("y", y(selectedData.date) + 40 - bottomChartOffset)
+                .attr("y", y(selectedData.date) + 40 - bottomChartOffset - aligner)
                 // .call(wrap, 200)
 
                 focusTextPopulation
-                .text("Population: " + d3.format(",")(selectedData.Canada))
+                .text("Population: ")
                 .attr("x", x(x.domain()[1]) - 210 -mobileTextOffset)
-                .attr("y", y(selectedData.date) + 60 - bottomChartOffset)
+                .attr("y", y(selectedData.date) + 60 - bottomChartOffset - aligner)
                 // .call(wrap, 200)
                 }
 
             function mouseout() {
-                // focus.style("opacity", 0)
-                // focusText.style("opacity", 0)
+                focusRect.style("opacity",0)
+                focusLine.style("opacity",0)
+                focusLineB.style("opacity",0)
+                focusRectMigrationNumberBackbox.style("opacity",0)
+                focusRectNaturalNumberBackbox.style("opacity",0)
+                focusRectPopulationNumberBackbox.style("opacity",0)
+                focusTextYearNumber.style("opacity",0)
+                focusTextMigrationNumber.style("opacity",0)
+                focusTextNaturalNumber.style("opacity",0)
+                focusTextPopulationNumber.style("opacity",0)
+                focusTextYear.style("opacity",0)
+                focusTextMigration.style("opacity",0)
+                focusTextNatural.style("opacity",0)
+                focusTextPopulation.style("opacity",0)
             }
 
             // TOOLTIP END ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
