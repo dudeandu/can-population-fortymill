@@ -1,16 +1,11 @@
-﻿index,timelocation,title,description,where
-1,32,,Molestiae laudantium dicta ut pariatur molestias deserunt culpa soluta adipisci omnis,migration
-2,22,,Lorem ipsum dolor sit amet consectetur adipisicing elit. Ratione perspiciatis et non laborum,natural
-3,8,,Aamet consectetur adipisicing elit. Inventore officiis at dolor qui necessitatibus rerum perferendis omnis soluta. Molestiae laudantium dicta ut pariatur molestias deserunt culpa soluta adipisci omnis,migration
-4,45,,"Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptates laudantium nihil iste quos enim animi",migration
-5,70,,"Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptates laudantium nihil iste quos enim animi",migration
-6,56,,Molestiae laudantium dicta ut pariatur molestias deserunt culpa soluta adipisci omnis,population
-7,0,,Canadian population estimated over 10 million since 1929,population
-8,35,,Canadian population reaches 20 million,population
-9,67,,Canadian population reaches 30 million,population
-10,14,,The end of WW2 and the start of the baby boom in 45,migration
-11,29,,Something about that drop in net migration in the early 60s (not sure just what yet),natural
-12,37,,The Start of PE Trudeau's first government in 68,migration
-13,75,,The start of the Harper government in 2006,migration
-14,84,,The start of the Justin Trudeau government in 2015,migration
-15,89,,The pandemic year when immigration crashed,natural
+﻿index,timelocation,title,description,where,direction,direction options,where options
+1,56,,Molestiae laudantium dicta ut pariatur molestias deserunt culpa soluta adipisci omnis,population,down,up,netMigration
+2,1,Since 1929,the Canadian population was estimated over 10 million,population,down,down,natGrowth
+3,35,,Canadian population reaches 20 million,population,down,,population
+4,67,,Canadian population reaches 30 million,population,down,,
+5,14,,The end of WW2 and the start of the baby boom in 45,netMigration,down,,
+6,29,,Something about that drop in net migration in the early 60s (not sure just what yet),natGrowth,down,,
+7,37,,The Start of PE Trudeau's first government in 68,netMigration,up,,
+8,75,,The start of the Harper government in 2006,netMigration,down,,
+9,84,,The start of the Justin Trudeau government in 2015,netMigration,down,,
+10,89,,The pandemic year when immigration crashed,natGrowth,down,,

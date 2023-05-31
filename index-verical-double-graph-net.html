@@ -55,7 +55,7 @@
         }
 
         svg .tick line{
-            opacity: 0.2;
+            opacity: 0.15;
         }
         
         svg .invisibleTick .tick line{
@@ -75,20 +75,71 @@
             stroke-linecap: round;
         }
         .backgroundText {
-            stroke-width: 8px;
+            stroke-width: 5px;
         }
 
         .focusRect {
             fill: #F8F8F8";
         }
 
+        @media (max-width: 1040px) {
+            .graphic {
+                padding-right: 18px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            #chart1 {
+                width: 80%;
+            }
+            #chart2 {
+                width: 20%;
+                /* background-color: tomato; */
+            }
+            .annotationtext {
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 775px) {
+            #chart1 {
+                width: 75%;
+            }
+            #chart2 {
+                width: 25%;
+            }
+        }
+
+        @media (max-width: 700px) {
+            #chart1 {
+                width: 70%;
+            }
+            #chart2 {
+                width: 30%;
+            }
+        }
+
         @media (max-width: 650px) {
+
             #chart1 {
                 width: 65%;
             }
             #chart2 {
                 width: 35%;
                 /* background-color: tomato; */
+            }
+        }
+
+        @media (max-width: 550px) {
+            .backgroundText {
+                stroke-width: 8px;
+            }
+        }
+
+        @media (max-width: 450px) {
+            
+            .graphic {
+                padding-right: 0;
             }
         }
 
@@ -156,6 +207,8 @@
         const chartWidth =  parseInt(d3.select('#chart1').style('width'))
         const chartWidth2 =  parseInt(d3.select('#chart2').style('width'))
 
+        // console.log(chartWidth)
+
         let years = [];
 
         let mobileTextOffset = 0
@@ -166,7 +219,6 @@
         
         if (chartWidth <= 695) {
             //do something here on mobile versions
-            console.log("true")
             ticksA = 4;
             mobileTextOffset = -60
         }
@@ -195,22 +247,6 @@
         .append("g")
             .attr("transform",
                 "translate(" + margin.left + "," + margin.top + ")");
-
-        svg.append("defs")
-            .append("marker")
-            .attr("id", "arrow")
-            .attr("markerUnits", "strokeWidth")
-            .attr("markerWidth", "12")
-            .attr("markerHeight", "12")
-            .attr("viewBox", "0 0 12 12")
-            .attr("refX", "6")
-            .attr("refY", "6")
-            .attr("orient", "auto")
-            .append("path")
-            .attr("d", "M2,2 L10,6 L2,10 L6,6 L2,2")
-            .style("fill", "#FF0000")
-            
-
 
         // append the svg object to the body of the page
         var svg2 = d3.select("#chart2")
@@ -259,11 +295,6 @@
             var yAxis = d3.axisLeft()
             .scale(y)
             .tickValues(years)
-
-                // .ticks(8,d3.format(".3s"));
-                // .tickValues(function(d){
-                //     console.log(d)
-                // })
                 .ticks(100)
                 .tickFormat(function (d) {
                     return populationApp.formatTime(d);
@@ -365,6 +396,7 @@
             // Create an area generator
             var areaGenerator = d3.area()
             // .x0(x2(0))
+            .curve(d3.curveStepAfter)
             .x0(function(d) { return x2(0); })
             .x1(function(d) { return x2(d.Canada); })
             .y(function(d) { return y(d.date); })
@@ -386,7 +418,8 @@
             const totalAxis = 8;
 
             for ( let i = 1; i < totalAxis; i++) {
-                svg.select("myYaxis")
+                
+                svg.append("g")
                     .attr("transform", "translate(0," + height + ")")
                     .attr("class", "invisibleTick backgroundTick")
                     .call(d3.axisTop(x)
@@ -397,9 +430,8 @@
                         })
                     )
                     .select(".domain").remove()
-
-
-                svg.select("myYaxis")
+                
+                svg.append("g")
                     .attr("transform", "translate(0," + height + ")")
                     .attr("class", "invisibleTick")
                     .call(d3.axisTop(x)
@@ -411,7 +443,7 @@
                     )
                     .select(".domain").remove()
 
-                svg2.select("myYaxis")
+                svg2.append("g")
                     .attr("transform", "translate(0," + height + ")")
                     .attr("class", "invisibleTick backgroundTick")
                     .call(d3.axisTop(x2)
@@ -419,12 +451,12 @@
                         .ticks(ticksB)
                         .tickValues(["20000000","40000000"])
                         .tickFormat(function (d) {
-                        return d3.format(".0s")(d);
+                            return d3.format(".0s")(d);
                         })
                     )
                     .select(".domain").remove()
 
-                svg2.select("myYaxis")
+                svg2.append("g")
                     .attr("transform", "translate(0," + height + ")")
                     .attr("class", "invisibleTick")
                     .call(d3.axisTop(x2)
@@ -432,7 +464,7 @@
                         .ticks(ticksB)
                         .tickValues(["20000000","40000000"])
                         .tickFormat(function (d) {
-                        return d3.format(".0s")(d);
+                            return d3.format(".0s")(d);
                         })
                     )
                     .select(".domain").remove()
@@ -449,7 +481,7 @@
             .attr("class", "positionline")
             .style("stroke", "#111")
             .style("stroke-width","1.5px")
-            .style("opacity", 1)
+            .style("opacity", 0)
             .attr("y1", y(0))
             .attr("x1", x(x.domain()[0]))
             .attr("y2", y(0))
@@ -461,7 +493,7 @@
             .attr("class", "positionline")
             .style("stroke", "#111")
             .style("stroke-width","1.5px")
-            .style("opacity", 1)
+            .style("opacity", 0)
             .attr("y1", y(0))
             .attr("x1", x2(x2.domain()[0]))
             .attr("y2", y(0))
@@ -469,142 +501,142 @@
 
 
 
+        // TOP LEGEND ARE IN HERE ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------    
+        
+        var line = svg.append('g')
+            .attr("class","topLegend")
+            .attr("id", "topLegendArrowL")
+            .append("line")
+            .attr("x1",x(-100000))  
+            // .attr("y1",y(data[1].date))  
+            .attr("y1",aligner*1.6)  
+            .attr("x2",x(-500000))  
+            // .attr("y2",y(data[1].date))
+            .attr("y2",aligner*1.6)
+            .attr("stroke","#666")  
+            .attr("stroke-width",2)
+
+            d3.select("#topLegendArrowL")
+                .append("path")
+                .attr("class", "annotationarrow")
+                .style("fill", "#666")
+                .attr("d", d3.symbol().type(d3.symbolTriangle).size(40))
+                .attr("transform", "translate(" 
+                + x(-500000)
+                + "," 
+                + aligner*1.6
+                + ")rotate("
+                + 270
+                + ")");
+        
+        var line = svg.append('g')
+            .attr("class","topLegend")
+            .attr("id", "topLegendArrowR")
+            .append("line")
+            .attr("x1",x(100000))  
+            // .attr("y1",y(data[1].date))  
+            .attr("y1",aligner*1.6)  
+            .attr("x2",x(500000))  
+            // .attr("y2",y(data[1].date))
+            .attr("y2",aligner*1.6)
+            .attr("stroke","#666")  
+            .attr("stroke-width",2)  
+
+            d3.select("#topLegendArrowR")
+                .append("path")
+                .attr("class", "annotationarrow")
+                .style("fill", "#666")
+                .attr("d", d3.symbol().type(d3.symbolTriangle).size(40))
+                .attr("transform", "translate(" 
+                + x(500000)
+                + "," 
+                + aligner*1.6
+                + ")rotate("
+                + 90
+                + ")");
+             
+        svg.append('g')
+            .attr("class","topLegend")
+            .append("text")
+            .attr("class", "backgroundText")
+                .attr("id", "natGrowthLegendBG")
+                .attr("x",0)
+                .attr("y",0)
+                .attr("dy",0.3)
+                .attr("transform", function(d) { 
+                    return "translate(" 
+                        // + (width/2 - aligner*1.6)
+                        + x(-100000)
+                        + "," 
+                        + aligner
+                        + ")"; 
+                    })
+                .text("Natural growth")
+                .style("text-anchor","end")
+                .call(wrap, 140);
+        
+        svg.append('g')
+            .attr("class","topLegend")
+            .append("text")
+            .attr("class", "backgroundText")
+                .attr("id", "netMigrationLegendBG")
+                .attr("x",0)
+                .attr("y",0)
+                .attr("dy",0.3)
+                .attr("transform", function(d) { 
+                    return "translate(" 
+                        // + (width/2 + aligner*1.6)
+                        + x(100000)
+                        + "," 
+                        + aligner 
+                        + ")"; 
+                    })
+                .text("Net migration")
+                .style("text-anchor","start")
+                .call(wrap, 140);
+        
+        svg.append('g')
+            .attr("class","topLegend")
+            .append("text")
+                .attr("id", "natGrowthLegend")
+                .attr("x",0)
+                .attr("y",0)
+                .attr("dy",0.3)
+                .attr("transform", function(d) { 
+                    return "translate(" 
+                        + x(-100000)
+                        + "," 
+                        + aligner
+                        + ")"; 
+                    })
+                .text("Natural growth")
+                .style("text-anchor","end")
+                .call(wrap, 140);
+        
+        svg.append('g')
+            .attr("class","topLegend")
+            .append("text")
+                .attr("id", "netMigrationLegend")
+                .attr("x",0)
+                .attr("y",0)
+                .attr("dy",0.3)
+                .attr("transform", function(d) { 
+                    return "translate(" 
+                        + x(100000)
+                        + "," 
+                        + aligner 
+                        + ")"; 
+                    })
+                .text("Net migration")
+                .style("text-anchor","start")
+                .call(wrap, 140);
+
+
+
+
         // ANNOTATIONS ARE IN HERE ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------    
 
-        svg.append('g')
-            .attr("class","annotation")
 
-        svg2.append('g')
-            .attr("class","annotation")
-
-        d3.csv("./data/annotations.csv",function(annotations) {
-
-
-            annotations.forEach(function(d) {
-                let theTitle = '';
-                let whichside = "end";
-                let sidecomp = 80;
-                // let leftX = x(data[data.length -1].netMigration * -1)
-                let leftX = (x(-20000)-width/8)
-                let leftX2 = x(0)
-                let thisSvg = d3.select("#chart1 svg .annotation")
-
-                
-                if (d.title == '') {
-                    theTitle = populationApp.formatTime(data[d.timelocation].date)
-                } else {
-                    theTitle = d.year
-                }
-                
-                if (d.where == 'migration' || d.where == 'natural') {
-                    sidecomp = 40;
-                    mobileTextOffsetAnnotation = -120
-                } else if (d.where == 'population'){
-                    thisSvg = d3.select("#chart2 svg .annotation")
-                    whichside = "start"
-                    mobileTextOffsetAnnotation = 0
-                    sidecomp =- 10;
-                    leftX = x2(0)
-                    leftX2 = x2(40000000)
-                } else {
-                    // whichside = "end";
-                    // mobileTextOffsetAnnotation = 0
-                }
-                // Add the path using this helper function
-                // thisSvg
-                    // .append('g')
-                    // .append('circle')
-                // .attr('cx', x(0) + margin.left)
-                // .attr('cy', y(data[d.timelocation].date))
-                // .attr('r', 50)
-                // .attr('stroke', 'black')
-                // .attr('fill', 'none');
-
-                if (d.where == 'migration' || d.where == 'natural') {
-                    svg.append("path")
-                    .datum(data[[d.timelocation]])
-                    .attr("class", "annotationarrow")
-                    .attr("id", "annotationarrow4")
-                    .style("fill", "#222")
-                    .attr("d", d3.symbol().type(d3.symbolTriangle).size(40))
-                    .attr("transform", function(d) { return "translate(" 
-                    + x(-20000) 
-                    + "," 
-                    + (y(d.date)-aligner) 
-                    + ")rotate(90)"; });
-
-                    svg.append("path")
-                    .datum(data[[d.timelocation]])
-                    .attr("class", "annotationpath")
-                    .attr("id", "annotationpath4")
-                    .style("fill", "none")
-                    .attr("stroke","#222")  
-                    .attr("stroke-width",1.2)  
-                    .attr("d", function(d) { return "M" 
-                        + leftX 
-                        + "," 
-                        + (y(d.date)-aligner+width/8) 
-                        + " C" 
-                        + leftX 
-                        + "," 
-                        + (y(d.date)-aligner) 
-                        + " " 
-                        + (x(-20000)) 
-                        + "," 
-                        + (y(d.date)-aligner) 
-                        + " " 
-                        + (x(-20000))
-                        + "," 
-                        + (y(d.date)-aligner) 
-                        ; 
-                    });
-                }
-                             
-                // thisSvg
-                //     // .append('g')
-                //     // .attr("class","annotation")
-                //     .append('line')
-                //     .attr('x1', leftX)
-                //     .attr('y1', y(data[d.timelocation].date))
-                //     .attr('x2', leftX2)
-                //     .attr('y2', y(data[d.timelocation].date))
-                //     .attr('stroke', 'black')
-
-                for (let j = 0; j < 2; j++) {
-                    const classer = ["annotationtext backgroundText", "annotationtext"]
-                    thisSvg
-                    .append("text")
-                    .datum(data[d.timelocation])
-                    .attr("class",function(){
-                        return classer[j]
-                    })
-                    .attr("id", function(d){
-                        if (j == 0){
-                            return "backgroundAnnotationtext" + d.index
-                        } else {
-                            return "annotationtext" + d.index                          
-                        }
-                    })
-                    .attr("x",0)
-                    .attr("y",0)
-                    .attr("dy",0.3)
-                    .attr("transform", function(d) { 
-                        return "translate(" 
-                            // + (leftX - sidecomp - mobileTextOffsetAnnotation) 
-                            + leftX
-                            + "," 
-                            // + (y(d.date)) 
-                            + (y(d.date)-10+width/8) 
-                            + ")"; 
-                        })
-                    .text(theTitle + ": " + d.description)
-                    .style("text-anchor",whichside)
-                    .call(wrap, 124);
-                }
-            
-            })
-        
-        })
 
         svg.append("g")
                 .attr("transform", "translate(0," + height + ")")
@@ -618,15 +650,177 @@
                 )
                 .select(".domain").remove()
 
+        svg.append('g')
+            .attr("class","annotation")
 
-        // var line = svg.append("line")
-        //      .attr("x1",50)  
-        //      .attr("y1",10)  
-        //      .attr("x2",200)  
-        //      .attr("y2",50)  
-        //      .attr("stroke","red")  
-        //      .attr("stroke-width",2)  
-        //      .attr("marker-end","url(#arrow)");  
+        svg2.append('g')
+            .attr("class","annotation")
+
+        d3.csv("./data/annotations.csv",function(annotations) {
+
+
+            annotations.forEach(function(d) {
+                let theTitle = '';
+
+                let wrapVal = 124;
+
+                let whichside = "end";
+                let sidecomp = 80;
+                let xVal = x(data[d.timelocation][d.where] * -1) - 10 - width/8
+                // let xVal = (x(-20000)-width/8);
+                let xVal2 = x(data[d.timelocation][d.where] * -1) - 10;
+                let arrotation = 90;
+                let thisSvg = d3.select("#chart1 svg .annotation");
+                
+                let yVal = y(data[d.timelocation].date)-aligner;
+                let textVertical = 10 + width/8;
+                let bottomMoveUp = 0;
+
+                if (d.timelocation > data.length-15 || d.direction == 'up') {
+                    bottomMoveUp = width/4
+                    textVertical = 15;
+                }
+                
+                if (d.title == '') {
+                    theTitle = populationApp.formatTime(data[d.timelocation].date)
+                } else {
+                    theTitle = d.title
+                }
+                
+                if (d.where == 'netMigration' || d.where == 'natGrowth') {
+                    sidecomp = 40;
+                    mobileTextOffsetAnnotation = -120
+                    if (d.where == 'netMigration') {
+                        whichside = "start";
+                        // xVal = (x(20000)+width/8)
+                        xVal = x(data[d.timelocation][d.where]) + 10 + width/8
+                        xVal2 = x(data[d.timelocation][d.where] ) + 10
+                        arrotation = 270
+                    }
+
+                    if (chartWidth <= 495) {
+                        whichside = "end";
+                        sidecomp = 0;
+                        xVal = x(data[d.timelocation]["natGrowth"] * -1) - 10 - width/8
+                        // xVal = (x(-20000)-width/8);
+                        xVal2 = x(data[d.timelocation]["natGrowth"] * -1) - 10;
+                        arrotation = 90;                    
+                        yVal = y(data[d.timelocation].date)-aligner;
+                        textVertical = 10 + width/8;
+                        bottomMoveUp = 0;
+                    }
+
+                } else if (d.where == 'population'){
+                    thisSvg = d3.select("#chart2 svg .annotation")
+                    whichside = "start"
+                    mobileTextOffsetAnnotation = 0
+                    sidecomp =- 10;
+                    xVal = x2(0)
+                    xVal2 = x2(40000000)
+                    yVal = y(data[d.timelocation].date)-aligner - textVertical
+                    
+                    if (chartWidth <= 495) { 
+                        wrapVal = 100
+                    }
+                    
+                    if (chartWidth <= 350) { 
+                        thisSvg = d3.select("#chart1 svg .annotation")
+                        whichside = "start";
+                        sidecomp = 0;
+                        xVal = x(data[d.timelocation]["natGrowth"] * -1) - 10 - width/8
+                        xVal2 = x(data[d.timelocation]["natGrowth"] * -1) - 10;
+                        arrotation = 90;                    
+                        yVal = y(data[d.timelocation].date)-aligner;
+                        textVertical = 10 + width/8;
+                        bottomMoveUp = 0;
+                    }
+                }
+
+                if (d.where == 'netMigration' && chartWidth >= 350 
+                    || d.where == 'natGrowth' && chartWidth >= 350) {
+                    d3.select("#chart1 svg .annotation")
+                        .append("path")
+                        .datum(data[d.timelocation])
+                        .attr("class", "annotationarrow")
+                        .attr("id", "annotationarrow4")
+                        .style("fill", "#222")
+                        .attr("d", d3.symbol().type(d3.symbolTriangle).size(40))
+                        .attr("transform", function(d) { return "translate(" 
+                        + xVal2
+                        // + data[d.timelocation][d.where]
+                        + "," 
+                        + yVal
+                        + ")rotate("
+                        + arrotation
+                        + ")"; });
+
+                    d3.select("#chart1 svg .annotation")
+                        .append("path")
+                        .datum(data[d.timelocation])
+                        .attr("class", "annotationpath")
+                        .attr("id", "annotationpath4")
+                        .style("fill", "none")
+                        .attr("stroke","#222")  
+                        .attr("stroke-width",1.2)  
+                        .attr("d", function(d) { return "M" 
+                            + xVal 
+                            + "," 
+                            + (y(d.date)-aligner+width/8 - bottomMoveUp)
+                            + " C" 
+                            + xVal 
+                            + "," 
+                            + (y(d.date)-aligner - 20) 
+                            + " " 
+                            + (xVal2) 
+                            + "," 
+                            + yVal 
+                            + " " 
+                            + (xVal2)
+                            + "," 
+                            + yVal 
+                            ; 
+                    });
+                }
+
+                for (let j = 0; j < 2; j++) {
+                    const classer = ["annotationtext backgroundText", "annotationtext"]
+                    // console.log(xVal)
+                    if (xVal < x(x.domain()[0])+140 && d.where != 'population') {
+                        xVal = x(x.domain()[0])+140
+                    }
+                    console.log(xVal)
+                    thisSvg
+                        .append("text")
+                        .datum(data[d.timelocation])
+                        .attr("class",function(){
+                            return classer[j]
+                        })
+                        .attr("id", function(d){
+                            if (j == 0){
+                                return "backgroundAnnotationtext" + d.year
+                            } else {
+                                return "annotationtext" + d.year                          
+                            }
+                        })
+                        .attr("x",0)
+                        .attr("y",0)
+                        .attr("dy",0.3)
+                        .style("opacity",1)
+                        .attr("transform", function(d) { 
+                            return "translate(" 
+                                + xVal
+                                + "," 
+                                + (yVal + textVertical - bottomMoveUp) 
+                                + ")"; 
+                            })
+                        .text(theTitle + ": " + d.description)
+                        .style("text-anchor",whichside)
+                        .call(wrap, wrapVal);
+                }
+            
+            })
+        
+        })
 
 
         // TOOLTIP IS HERE ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
@@ -648,12 +842,12 @@
             .append('rect')
             .attr("class", "focusRect")
             .style("opacity", 0)
-            .style("fill", "#4b76b4")
+            .style("fill", "#701C0A")
         var focusRectNaturalNumberBackbox = svg
             .append('rect')
             .attr("class", "focusRect")
             .style("opacity", 0)
-            .style("fill", "#701C0A")
+            .style("fill", "#4b76b4")
         var focusRectPopulationNumberBackbox = svg
             .append('rect')
             .attr("class", "focusRect")
@@ -943,6 +1137,7 @@
                 };
        
         parent.postMessage(message, "*");
+        // populationApp.buildChart()
     };
 
     window.addEventListener('load', function() {
