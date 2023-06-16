@@ -1,11 +1,10 @@
 ﻿index,timelocation,title,description,where,direction,direction options,where options
-1,56,,Molestiae laudantium dicta ut pariatur molestias deserunt culpa soluta adipisci omnis,population,down,up,netMigration
-2,1,Since 1929,the Canadian population was estimated over 10 million,population,down,down,natGrowth
-3,35,,Canadian population reaches 20 million,population,down,,population
-4,67,,Canadian population reaches 30 million,population,down,,
-5,14,,The end of WW2 and the start of the baby boom in 45,netMigration,down,,
-6,29,,Something about that drop in net migration in the early 60s (not sure just what yet),natGrowth,down,,
-7,37,,The Start of PE Trudeau's first government in 68,netMigration,up,,
-8,75,,The start of the Harper government in 2006,netMigration,down,,
-9,84,,The start of the Justin Trudeau government in 2015,netMigration,down,,
-10,89,,The pandemic year when immigration crashed,natGrowth,down,,
+1,2,Since 1929,the Canadian population was estimated over 10 million,population,down,up,netMigration
+2,35,,Canadian population reaches 20 million,population,down,down,natGrowth
+3,67,,Canadian population reaches 30 million,population,down,,population
+4,14,,The end of WW2 and the start of the baby boom in 45,netMigration,down,,
+5,29,,Something about that drop in net migration in the early 60s (not sure just what yet),natGrowth,down,,
+6,37,,The Start of PE Trudeau's first government,netMigration,up,,
+7,75,,The start of the Harper government,netMigration,down,,
+8,84,,The start of the Justin Trudeau government,netMigration,down,,
+9,89,,The pandemic when immigration crashed,natGrowth,down,,

@@ -1,0 +1,102 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:image" content="images/og.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="images/og.jpg">
+    <meta name="twitter:image:alt" content="Project name">
+    <meta name="parsely-image-url" content="images/og.jpg">
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/main.css.map">
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
+</head>
+
+<body>
+    <script>
+    const compImgPath = "images"
+    </script>
+    <!-- <script>const compImgPath = "images/bloxtemplate"</script> -->
+    
+    <div id='blox-paywall'>
+    <div id='blox-subcontent'>
+    </div>
+    </div>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400;1,700&family=Oswald:wght@500;600;700&Inter:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
+    <main id="SA_main-body">
+        <article>
+            <section id="SA_main-section" style="z-index: 12;position: relative;">
+                <div id="map"></div>
+                <div id="map-overlay">
+                    <div class="SA_stepper-nav-text">
+                        <!-- <h1 class="SA_h2">Story title</h1> -->
+                        <h1 class="SA_nav-title">Story title</h1>
+                        <p class="SA_nav-desc">Here is New York City, a region of 18 million people. Each dot represents 1,000,000 square meters. Deeper shades of red represent more people.</p>
+                    </div>
+                    <nav id="SA_stepper-nav">
+                        <button id="SA_button-left" disabled class="SA_arrow-button SA_arrow-button--left" tabindex="1">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 448 512">
+                                <path style="fill:hsla(0,0%,100%,.84)" d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"/></svg>
+                        </button>
+                        <div id="SA_pagination">1/4</div>
+                        <button id="SA_button-right" class="SA_arrow-button SA_arrow-button--right" tabindex="2">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 448 512">
+                                <path style="fill:hsla(0,0%,100%,.84)" d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"/></svg>
+                        </button>
+                    </nav>
+                    
+                </div>
+            </section>
+        </article>
+        <footer id="SA_footer">
+            <div>
+                <div class="SA_credit-container">
+                    <div class="SA_credit-container__inner-wrapper">
+                        <div class="SA_credit-container__inner-wrapper__individual">
+                            <p class="SA_credit-container__inner-wrapper__individual__title">Design and Web Development</p>
+                            <p style="white-space: normal;" class="SA_credit-container__inner-wrapper__individual__name SA_multinames__names"><span>McKenna Deighton,</span> <span>Andres Plana,</span> <span>Cameron Tulk,</span> <span>Nathan Pilla</span></p>
+                        </div>
+                        <div class="SA_credit-container__inner-wrapper__individual">
+                            <p class="SA_credit-container__inner-wrapper__individual__title">Graphics</p>
+                            <p style="white-space: normal;" class="SA_credit-container__inner-wrapper__individual__name SA_multinames__names"><span>McKenna Deighton,</span> <span>Andres Plana,</span> <span>Cameron Tulk</span></p>
+                        </div>
+                        <div class="SA_credit-container__inner-wrapper__individual">
+                            <p class="SA_credit-container__inner-wrapper__individual__title">Video Editing & Animation</p>
+                            <p style="white-space: normal;" class="SA_credit-container__inner-wrapper__individual__name multinames__names"><span>Kelsey Wilson,</span> <span>McKenna Deighton</span></p>
+                        </div>
+                        <div class="SA_credit-container__inner-wrapper__individual">
+                            <p class="SA_credit-container__inner-wrapper__individual__title">Digital Producer</p>
+                            <p class="SA_credit-container__inner-wrapper__individual__name">Tania Pereira</p>
+                        </div>
+                        <div class="SA_credit-container__inner-wrapper__individual">
+                            <p class="SA_credit-container__inner-wrapper__individual__title">Executive Creative Director</p>
+                            <p class="SA_credit-container__inner-wrapper__individual__name">Fadi Yaacoub</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </main>
+    <script type="text/javascript">
+    window.lazySizesConfig = window.lazySizesConfig || {};
+    // add prefix to all styles
+    window.lazySizesConfig.lazyClass = 'SA_lazyload';
+    window.lazySizesConfig.preloadClass = "SA_lazypreload";
+    window.lazySizesConfig.loadingClass = "SA_lazyloading";
+    window.lazySizesConfig.loadedClass = "SA_lazyloaded";
+    </script>
+    
+    <script src="js/script.min.js"></script>
+    
+</body>
+</html>

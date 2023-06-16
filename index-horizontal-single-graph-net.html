@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Toronto Star graphic template</title>
+    <link rel="stylesheet" href="https://misc.thestar.com/interactivegraphic/assets/style.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"> 
+    
+
+    <!-- Load d3.js & color scale-->
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+
+<style>
+
+        /* .graphic-wrapper { */
+        /* max-width: 660px; */
+        /* } */
+
+        #legend-dot-1{
+            background-color: #4b76b4;
+        }
+
+        #legend-dot-2{
+            background-color: #DB8233;
+        }
+
+        #legend-dot-3{
+            background-color: #009988;
+        }
+
+        .graphicFlex-container {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        #chart1 {
+            width: 100%;
+        }
+        #chart2 {
+            width: 100%;
+            /* background-color: tomato; */
+        }
+
+        svg {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif;
+            font-size: 14px;
+        }
+
+        .natGrowthcomp,
+        .netMigrationcomp {
+            display: none;
+        }
+
+        svg .tick line{
+            opacity: 0.15;
+        }
+        
+        svg .invisibleTick .tick line{
+            opacity: 0;
+        }
+
+        .annotation {
+            z-index: -5;
+        }
+        
+        .backgroundTick text,
+        .backgroundText {
+            stroke: #F8F8F8;
+            stroke-width: 3px;
+            stroke-opacity: 1;
+            stroke-linejoin: round;
+            stroke-linecap: round;
+        }
+        .backgroundText {
+            stroke-width: 5px;
+        }
+
+        .focusRect {
+            fill: #F8F8F8";
+        }
+
+        @media (max-width: 1040px) {
+            .graphic {
+                padding-right: 18px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            #chart1 {
+                width: 100%;
+            }
+            #chart2 {
+                width: 100%;
+                /* background-color: tomato; */
+            }
+            .annotationtext {
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 550px) {
+            .backgroundText {
+                stroke-width: 8px;
+            }
+        }
+
+        @media (max-width: 450px) {
+            
+            .graphic {
+                padding-right: 0;
+            }
+        }
+
+</style>
+</head>
+<body>
+  <div class="graphic-wrapper graphic-sidescroll-test">
+    <div class="graphic-top">
+        <!-- <h2 class="graphic-top__graphic-hed">Add your heading here</h2> -->
+        <!-- <h3 class="graphic-top__graphic-dek">A longer dek could be required to fully explain what the data is. A longer dek could be required to fully explain what the data is.</h3> -->
+
+        <div class="graphic-legend">
+            <div class="graphic-legend-container">
+                <div class="graphic-legend-dot" id="legend-dot-1"></div><p class="graphic-legend-text">Natural growth</p>
+            </div>
+            <div class="graphic-legend-container">
+                <div class="graphic-legend-dot" id="legend-dot-2"></div><p class="graphic-legend-text">Net migration</p>
+            </div>
+            <div class="graphic-legend-container">
+                <div class="graphic-legend-dot" id="legend-dot-3"></div><p class="graphic-legend-text">Canadian population</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="graphic">
+
+        <!-- Add 2 buttons -->
+        <button id="canadaButton" data-grab="Canada">Canada</button>
+        <button id="ontarioButton" data-grab="Ontario">Ontario</button>
+        <div class="graphicFlex-container">
+            <div id="chart1"></div>
+            <div id="chart2"></div>
+        </div>
+        
+    </div>
+
+
+
+   
+
+    <div class="graphic-bottom">
+        <!-- <p class="graphic-bottom__notetext" id="notetext">* Any further note to explain one aspect of the data could go here.</p> -->
+        <p class="graphic-bottom__graphic-source" id="source">Source: Stats Canada</p>
+        <p class="graphic-bottom__graphic-byline" id="byline">Toronto Star graphic</p>
+    </div>
+  </div>
+
+<script>
+
+
+    const populationApp = {}
+
+    populationApp.parseDate = d3.timeParse("%Y-%m-%d");
+    populationApp.parseYear = d3.timeParse("%Y");
+    // populationApp.parseDate = d3.timeParse("%b %Y");
+    // populationApp.formatTime = d3.timeFormat("%b %e, %Y");
+    populationApp.formatTime = d3.timeFormat("%Y");
+    
+    populationApp.buildChart = (data, getThisData) => {
+
+        // CHARTS SETUP HERE ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
+        
+        d3.select('#chart1').html('')
+        d3.select('#chart2').html('')
+        const chartWidth =  parseInt(d3.select('#chart1').style('width'))
+        const chartWidth2 =  parseInt(d3.select('#chart2').style('width'))
+
+        // console.log(chartWidth)
+
+        let years = [];
+
+        let mobileTextOffset = 0
+        let mobileTextOffsetAnnotation = 0
+        let ticksA = 8;
+        let ticksB = 2;
+        let aligner = 30;
+        
+        if (chartWidth <= 695) {
+            //do something here on mobile versions
+            ticksA = 4;
+            mobileTextOffset = -60
+        }
+        if (chartWidth <= 395) {
+            mobileTextOffset = 0
+        }
+
+        // set the dimensions and margins of the graph
+        var margin = {top: 100, right: 30, bottom: 40, left: 40, leftB: 40},
+            width = chartWidth - margin.left - margin.right,
+            width2 = chartWidth2 - margin.left - margin.right,
+            height = 600 - margin.top - margin.bottom;
+
+        if (chartWidth <= 275) {
+            margin = {top: 100, right: 20, bottom: 40, left: 10, leftB: 30},
+                width = chartWidth - margin.left - margin.right,
+                width2 = chartWidth2 - margin.left - margin.right,
+                height = 600 - margin.top - margin.bottom;
+
+            mobileTextOffsetAnnotation = 0
+        }
+
+        // append the svg object to the body of the page
+        var svg = d3.select("#chart1")
+        .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+            .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+
+        // append the svg object to the body of the page
+        var svg2 = d3.select("#chart2")
+        .append("svg")
+            .attr("width", width2 + margin.leftB + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+            .attr("transform",
+                "translate(" + margin.leftB + "," + margin.top + ")");
+
+        //Read the data
+        // d3.csv("./data/can-data-1931-2022-pop-increase-net.csv",function(data) {
+        
+        let canadaData = [], 
+            ontarioData = [];
+
+        data.forEach(function(d) {
+            d.natGrowthCanada = +d.natGrowthCanada
+            d.netMigrationCanada = +d.netMigrationCanada
+            d.natGrowthcompCanada = +d.natGrowthcompCanada
+            d.netMigrationcompCanada = +d.netMigrationcompCanada
+            d.natGrowthOntario = +d.natGrowthOntario
+            d.netMigrationOntario = +d.netMigrationOntario
+            d.natGrowthcompOntario = +d.natGrowthcompOntario
+            d.netMigrationcompOntario = +d.netMigrationcompOntario
+            d.Ontario = +d.Ontario
+            d.date = populationApp.parseYear(d.year)
+            years.push(populationApp.parseYear(d.year))
+        });
+         
+        console.log(data)
+        years.shift()
+
+        
+        
+        // List of groups = header of the csv files
+        // var keys = data.columns.slice(1)
+        var keys = [
+            "netMigrationcomp"+getThisData,
+                    "netMigration"+getThisData,
+                    "natGrowth"+getThisData,
+                    "natGrowthcomp"+getThisData
+                ]
+
+        // SETUPS AXIS HERE ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
+        
+
+        // Add X axis
+        // var x = d3.scaleLinear()
+        //     .domain(d3.extent(data, function(d) { return d.year; }))
+            var x = d3.scaleTime()
+                .domain(d3.extent(data, function(d) { return d.date; }))
+                .range([ 0, width ]);
+            var xAxis = d3.axisBottom()
+                .scale(x)
+                // .tickValues(years)
+                .ticks(ticksA)
+                .tickFormat(function (d) {
+                    return populationApp.formatTime(d);
+                })
+            var xAxisT = d3.axisTop()
+            .scale(x)
+            .tickValues(years)
+                .ticks(ticksA)
+                .tickSize(height)
+                .tickFormat(function (d) {
+                    // return populationApp.formatTime(d);
+                    return "'" + d3.timeFormat("%y")(d);
+                })
+
+            if (chartWidth <= 275) { 
+                svg.append("g")
+                    .attr("class","myXaxis invisibleTick")
+                    .attr("transform", "translate(0," + (height) + ")")
+                    .call(xAxisT);
+            } else {
+                svg.append("g")
+                    .attr("class","myXaxis")
+                    .attr("transform", "translate(0," + (height) + ")")
+                    .call(xAxis);
+                svg2.append("g")
+                    .attr("class","myXaxis")
+                    .attr("transform", "translate(0," + (height) + ")")
+                    .call(xAxis);    
+            }
+            // Add Y axis
+            var y = d3.scaleLinear()
+                .domain([
+                    d3.max(data, function(d) { return d[keys[1]]})*-1, 
+                    d3.max(data, function(d) { return d[keys[2]]+100000}) 
+                    // d3.max(data, function(d) { return d[keys[1]]}) 
+                ])
+                .range([ 0, height ]);
+
+            var yAxis = svg.append("g")
+                    .attr("class", "yAxis")
+                    .attr("transform", "translate(" + 0 + ",0)")
+                    .call(d3.axisLeft(y)
+                        .ticks(ticksA)
+                        .tickSize(-width)
+                        .tickFormat(function (d) {
+                            return d3.format(".0s")(Math.abs(d));
+                        })
+                    )
+
+            
+            
+                // Add Y axis
+            var y2 = d3.scaleLinear()
+                .domain([0,40000000])
+                .range([ height, 0 ]);
+            svg2.append("g")
+                .attr("transform", "translate(" + 0 + ",0)")
+                .call(d3.axisLeft(y2)
+                    .tickSize(-width)
+                    .ticks(ticksB)
+                    .tickFormat(function (d) {
+                        return d3.format(".0s")(d);
+                    })
+                )
+
+            // svg2.append("g")
+            //     .attr("transform", "translate(" + width + ",0)")
+            //     .call(d3.axisLeft(y2)
+            //         .tickSize(width)
+            //         .ticks(ticksB)
+            //         .tickFormat(function (d) {
+            //             return d3.format(".0s")(d);
+            //         })
+            //     )
+
+                d3.selectAll(".domain").remove()
+                
+            // Customization
+            // svg.selectAll(".tick line").attr("stroke", "#F0F0F0")
+
+        // color palette
+        var color = d3.scaleOrdinal()
+            .domain(keys)
+            // .range(d3.schemeDark2);
+            // .range(['#f8f8f8', '#4b76b4', '#EEAA33','#f8f8f8']);
+            .range(['#f8f8f800', '#DB8233', '#4b76b4','#f8f8f800']);
+        
+        // Making PATHS HERE ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------    
+
+        //stack the data?
+        var stackedData = d3.stack()
+            .offset(d3.stackOffsetSilhouette)
+            .keys(keys)
+            (data)
+
+        // Area generator
+        var area = d3.area()
+            // .curve(d3.curveBasis)
+            // .curve(d3.curveStepAfter)
+            .curve(d3.curveStepBefore)
+            .x(function(d) { 
+                return x(d.data.date); })
+            .y0(function(d) { return y(d[0]); })
+            .y1(function(d) { return y(d[1]); })
+
+            // console.log(area())
+            
+
+        // Show the areas
+        svg
+            .selectAll("mylayers")
+            .data(stackedData)
+            .enter()
+            .append("path")
+            // .attr("class", function(d) { return "myArea " + d.key; })
+            .attr("class", function(d) { return "myArea"; })
+            // .attr("transform","translate(0,30)")
+            .style("fill", function(d) { return color(d.key); })
+            .attr("d", area)
+
+
+            // Create the area variable: where both the area and the brush take place
+            var area2 = svg2.append('g')
+            // .attr("clip-path", "url(#clip)")
+
+            // Create an area generator
+            var areaGenerator = d3.area()
+            // .x0(x2(0))
+            .curve(d3.curveStepAfter)
+            .x(function(d) { return x(d.date); })
+            .y0(function(d) { return y2(0); })
+            .y1(function(d) { return y2(d.Canada); })
+
+            // Add the area
+        area2.append("path")
+            .datum(data)
+            .attr("class", "myArea")  // I add the class myArea to be able to modify it later on.
+            // .attr("transform","translate(0,30)")
+            // .attr("fill", "#005789")
+            .attr("fill", "#009988")
+            .attr("fill-opacity", .8)
+            // .attr("stroke", "black")
+            // .attr("stroke-width", 1)
+            .attr("d", areaGenerator )
+
+        // Making AXIS LABELS HERE ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
+
+            // const totalAxis = 8;
+
+            // for ( let i = 1; i < totalAxis; i++) {
+                
+            //     svg.append("g")
+            //         .attr("transform", "translate(0," + height + ")")
+            //         .attr("class", "invisibleTick backgroundTick")
+            //         .call(d3.axisTop(x)
+            //             .tickSize((height/totalAxis * i) +1)
+            //             .ticks(ticksA)
+            //             .tickFormat(function (d) {
+            //                 return d3.format(".0s")(Math.abs(d));
+            //             })
+            //         )
+            //         .select(".domain").remove()
+                
+            //     svg.append("g")
+            //         .attr("transform", "translate(0," + height + ")")
+            //         .attr("class", "invisibleTick")
+            //         .call(d3.axisTop(x)
+            //             .tickSize((height/totalAxis * i) +1)
+            //             .ticks(ticksA)
+            //             .tickFormat(function (d) {
+            //                 return d3.format(".0s")(Math.abs(d));
+            //             })
+            //         )
+            //         .select(".domain").remove()
+
+            //     svg2.append("g")
+            //         .attr("transform", "translate(0," + height + ")")
+            //         .attr("class", "invisibleTick backgroundTick")
+            //         .call(d3.axisTop(x2)
+            //             .tickSize((height/totalAxis * i) +1)
+            //             .ticks(ticksB)
+            //             .tickValues(["20000000","40000000"])
+            //             .tickFormat(function (d) {
+            //                 return d3.format(".0s")(d);
+            //             })
+            //         )
+            //         .select(".domain").remove()
+
+            //     svg2.append("g")
+            //         .attr("transform", "translate(0," + height + ")")
+            //         .attr("class", "invisibleTick")
+            //         .call(d3.axisTop(x2)
+            //             .tickSize((height/totalAxis * i) +1)
+            //             .ticks(ticksB)
+            //             .tickValues(["20000000","40000000"])
+            //             .tickFormat(function (d) {
+            //                 return d3.format(".0s")(d);
+            //             })
+            //         )
+            //         .select(".domain").remove()
+
+                
+            // }
+
+
+
+        // FOCUS LINE HERE --- Needs to be behind the annotations ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------    
+        // Create a rect on top of the svg area: this rectangle recovers mouse position
+        var focusLine = svg
+            .append("line")
+            .attr("class", "positionline")
+            .style("stroke", "#111")
+            .style("stroke-width","1.5px")
+            .style("opacity", 0)
+            .attr("y1", y(y.domain()[0]))
+            .attr("x1", x(0))
+            .attr("y2", y(y.domain()[1]))
+            .attr("x2", x(0));
+
+        // Create a rect on top of the svg area: this rectangle recovers mouse position
+        var focusLineB = svg2
+            .append("line")
+            .attr("class", "positionline")
+            .style("stroke", "#111")
+            .style("stroke-width","1.5px")
+            .style("opacity", 0)
+            .attr("y1", y2(y2.domain()[0]))
+            .attr("x1", x(0))
+            .attr("y2", y2(y2.domain()[1]))
+            .attr("x2", x(0));
+
+
+
+        // TOP LEGEND ARE IN HERE ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------    
+        
+        // var line = svg.append('g')
+        //     .attr("class","topLegend")
+        //     .attr("id", "topLegendArrowL")
+        //     .append("line")
+        //     .attr("x1",x(-100000))  
+        //     // .attr("y1",y(data[1].date))  
+        //     .attr("y1",aligner*1.6)  
+        //     .attr("x2",x(-500000))  
+        //     // .attr("y2",y(data[1].date))
+        //     .attr("y2",aligner*1.6)
+        //     .attr("stroke","#666")  
+        //     .attr("stroke-width",2)
+
+        //     d3.select("#topLegendArrowL")
+        //         .append("path")
+        //         .attr("class", "annotationarrow")
+        //         .style("fill", "#666")
+        //         .attr("d", d3.symbol().type(d3.symbolTriangle).size(40))
+        //         .attr("transform", "translate(" 
+        //         + x(-500000)
+        //         + "," 
+        //         + aligner*1.6
+        //         + ")rotate("
+        //         + 270
+        //         + ")");
+        
+        // var line = svg.append('g')
+        //     .attr("class","topLegend")
+        //     .attr("id", "topLegendArrowR")
+        //     .append("line")
+        //     .attr("x1",x(100000))  
+        //     // .attr("y1",y(data[1].date))  
+        //     .attr("y1",aligner*1.6)  
+        //     .attr("x2",x(500000))  
+        //     // .attr("y2",y(data[1].date))
+        //     .attr("y2",aligner*1.6)
+        //     .attr("stroke","#666")  
+        //     .attr("stroke-width",2)  
+
+        //     d3.select("#topLegendArrowR")
+        //         .append("path")
+        //         .attr("class", "annotationarrow")
+        //         .style("fill", "#666")
+        //         .attr("d", d3.symbol().type(d3.symbolTriangle).size(40))
+        //         .attr("transform", "translate(" 
+        //         + x(500000)
+        //         + "," 
+        //         + aligner*1.6
+        //         + ")rotate("
+        //         + 90
+        //         + ")");
+            
+        //     var line = svg2.append('g')
+        //         .attr("class","topLegend")
+        //         .attr("id", "topLegendArrowPop")
+        //         .append("line")
+        //         .attr("x1",x2(5000000))  
+        //         // .attr("y1",y(data[1].date))  
+        //         .attr("y1",aligner*1.6)  
+        //         .attr("x2",x2(18000000))  
+        //         // .attr("y2",y(data[1].date))
+        //         .attr("y2",aligner*1.6)
+        //         .attr("stroke","#666")  
+        //         .attr("stroke-width",2)  
+
+        //         d3.select("#topLegendArrowPop")
+        //             .append("path")
+        //             .attr("class", "annotationarrow")
+        //             .style("fill", "#666")
+        //             .attr("d", d3.symbol().type(d3.symbolTriangle).size(40))
+        //             .attr("transform", "translate(" 
+        //             + x2(18000000)
+        //             + "," 
+        //             + aligner*1.6
+        //             + ")rotate("
+        //             + 90
+        //             + ")");
+             
+        // svg.append('g')
+        //     .attr("class","topLegend")
+        //     .append("text")
+        //     .attr("class", "backgroundText")
+        //         .attr("id", "natGrowthLegendBG")
+        //         .attr("x",0)
+        //         .attr("y",0)
+        //         .attr("dy",0.3)
+        //         .attr("transform", function(d) { 
+        //             return "translate(" 
+        //                 // + (width/2 - aligner*1.6)
+        //                 + x(-100000)
+        //                 + "," 
+        //                 + aligner
+        //                 + ")"; 
+        //             })
+        //         .text("Natural growth")
+        //         .style("text-anchor","end")
+        //         .call(wrap, 140);
+        
+        // svg.append('g')
+        //     .attr("class","topLegend")
+        //     .append("text")
+        //     .attr("class", "backgroundText")
+        //         .attr("id", "netMigrationLegendBG")
+        //         .attr("x",0)
+        //         .attr("y",0)
+        //         .attr("dy",0.3)
+        //         .attr("transform", function(d) { 
+        //             return "translate(" 
+        //                 // + (width/2 + aligner*1.6)
+        //                 + x(100000)
+        //                 + "," 
+        //                 + aligner 
+        //                 + ")"; 
+        //             })
+        //         .text("Net migration")
+        //         .style("text-anchor","start")
+        //         .call(wrap, 140);
+        
+        // svg2.append('g')
+        //     .attr("class","topLegend")
+        //     .append("text")
+        //     .attr("class", "backgroundText")
+        //         .attr("id", "populationLegendBG")
+        //         .attr("x",0)
+        //         .attr("y",0)
+        //         .attr("dy",0.3)
+        //         .attr("transform", function(d) { 
+        //             return "translate(" 
+        //                 + x2(0)
+        //                 + "," 
+        //                 + aligner 
+        //                 + ")"; 
+        //             })
+        //         .text("Canadian Population")
+        //         .style("text-anchor","start")
+        //         .call(wrap, 140);
+        
+        // svg.append('g')
+        //     .attr("class","topLegend")
+        //     .append("text")
+        //         .attr("id", "natGrowthLegend")
+        //         .attr("x",0)
+        //         .attr("y",0)
+        //         .attr("dy",0.3)
+        //         .attr("transform", function(d) { 
+        //             return "translate(" 
+        //                 + x(-100000)
+        //                 + "," 
+        //                 + aligner
+        //                 + ")"; 
+        //             })
+        //         .text("Natural growth")
+        //         .style("text-anchor","end")
+        //         .call(wrap, 140);
+        
+        // svg.append('g')
+        //     .attr("class","topLegend")
+        //     .append("text")
+        //         .attr("id", "netMigrationLegend")
+        //         .attr("x",0)
+        //         .attr("y",0)
+        //         .attr("dy",0.3)
+        //         .attr("transform", function(d) { 
+        //             return "translate(" 
+        //                 + x(100000)
+        //                 + "," 
+        //                 + aligner 
+        //                 + ")"; 
+        //             })
+        //         .text("Net migration")
+        //         .style("text-anchor","start")
+        //         .call(wrap, 140);
+        
+        // svg2.append('g')
+        //     .attr("class","topLegend")
+        //     .append("text")
+        //         .attr("id", "populationLegend")
+        //         .attr("x",0)
+        //         .attr("y",0)
+        //         .attr("dy",0.3)
+        //         .attr("transform", function(d) { 
+        //             return "translate(" 
+        //                 + x2(0)
+        //                 + "," 
+        //                 + aligner 
+        //                 + ")"; 
+        //             })
+        //         .text("Canadian Population")
+        //         .style("text-anchor","start")
+        //         .call(wrap, 140);
+
+
+
+
+        // ANNOTATIONS ARE IN HERE ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------    
+
+
+
+        // svg.append("g")
+        //         .attr("transform", "translate(0," + height + ")")
+        //         // .call(d3.axisBottom(x).tickSize(-height*.7).tickValues([1900, 1925, 1975, 2000]))
+        //         .call(d3.axisTop(x)
+        //             .tickSize(height)
+        //             .ticks(ticksA)
+        //             .tickFormat(function (d) {
+        //                 return d3.format(".0s")(Math.abs(d));
+        //             })
+        //         )
+        //         .select(".domain").remove()
+
+        svg.append('g')
+            .attr("class","annotation")
+
+        svg2.append('g')
+            .attr("class","annotation")
+
+        d3.csv("./data/annotations.csv",function(annotations) {
+
+
+            // annotations.forEach(function(d) {
+            //     let theTitle = '';
+
+            //     let wrapVal = 124;
+
+            //     let whichside = "end";
+            //     let sidecomp = 80;
+            //     let xVal = x(data[d.timelocation][d.where] * -1) - 10 - width/8
+            //     // let xVal = (x(-20000)-width/8);
+            //     let xVal2 = x(data[d.timelocation][d.where] * -1) - 10;
+            //     let arrotation = 90;
+            //     let thisSvg = d3.select("#chart1 svg .annotation");
+                
+            //     let yVal = y(data[d.timelocation].date)-aligner;
+            //     let textVertical = 10 + width/8;
+            //     let bottomMoveUp = 0;
+
+            //     if (d.timelocation > data.length-15 || d.direction == 'up') {
+            //         bottomMoveUp = width/4
+            //         textVertical = 15;
+            //     }
+                
+            //     if (d.title == '') {
+            //         theTitle = populationApp.formatTime(data[d.timelocation].date)
+            //     } else {
+            //         theTitle = d.title
+            //     }
+                
+            //     if (d.where == 'netMigration' || d.where == 'natGrowth') {
+            //         sidecomp = 40;
+            //         mobileTextOffsetAnnotation = -120
+            //         if (d.where == 'netMigration') {
+            //             whichside = "start";
+            //             // xVal = (x(20000)+width/8)
+            //             xVal = x(data[d.timelocation][d.where]) + 10 + width/8
+            //             xVal2 = x(data[d.timelocation][d.where] ) + 10
+            //             arrotation = 270
+            //         }
+
+            //         if (chartWidth <= 495) {
+            //             whichside = "start";
+            //             mobileTextOffsetAnnotation = 0
+            //             sidecomp = 0;
+            //             xVal = x(data[d.timelocation]["natGrowth"] * -1) - 10 - width/8
+            //             // xVal = (x(-20000)-width/8);
+            //             xVal2 = x(data[d.timelocation]["natGrowth"] * -1) - 10;
+            //             arrotation = 90;                    
+            //             yVal = y(data[d.timelocation].date)-aligner;
+            //             textVertical = 10 + width/8;
+            //             bottomMoveUp = 0;
+            //         }
+
+            //     } else if (d.where == 'population'){
+            //         thisSvg = d3.select("#chart2 svg .annotation")
+            //         whichside = "start"
+            //         mobileTextOffsetAnnotation = 0
+            //         sidecomp =- 10;
+            //         xVal = x2(0)
+            //         xVal2 = x2(40000000)
+            //         yVal = y(data[d.timelocation].date)-aligner - textVertical
+                
+                    
+            //         if (chartWidth <= 350) { 
+            //             thisSvg = d3.select("#chart1 svg .annotation")
+            //             whichside = "start";
+            //             sidecomp = 0;
+            //             xVal = x(data[d.timelocation]["natGrowth"] * -1) - 10 - width/8
+            //             xVal2 = x(data[d.timelocation]["natGrowth"] * -1) - 10;
+            //             arrotation = 90;                    
+            //             yVal = y(data[d.timelocation].date)-aligner;
+            //             textVertical = 10 + width/8;
+            //             bottomMoveUp = 0;
+            //         }
+            //     }
+
+            //     if (chartWidth <= 495) { 
+            //             wrapVal = 100
+            //         }
+
+            //     if (chartWidth <= 350) {
+            //         textVertical = 0
+            //     }
+
+            //     if (d.where == 'netMigration' && chartWidth >= 350 
+            //         || d.where == 'natGrowth' && chartWidth >= 350) {
+            //         d3.select("#chart1 svg .annotation")
+            //             .append("path")
+            //             .datum(data[d.timelocation])
+            //             .attr("class", "annotationarrow")
+            //             .attr("id", "annotationarrow4")
+            //             .style("fill", "#222")
+            //             .attr("d", d3.symbol().type(d3.symbolTriangle).size(40))
+            //             .attr("transform", function(d) { return "translate(" 
+            //             + xVal2
+            //             // + data[d.timelocation][d.where]
+            //             + "," 
+            //             + yVal
+            //             + ")rotate("
+            //             + arrotation
+            //             + ")"; });
+
+            //         d3.select("#chart1 svg .annotation")
+            //             .append("path")
+            //             .datum(data[d.timelocation])
+            //             .attr("class", "annotationpath")
+            //             .attr("id", "annotationpath4")
+            //             .style("fill", "none")
+            //             .attr("stroke","#222")  
+            //             .attr("stroke-width",1.2)  
+            //             .attr("d", function(d) { return "M" 
+            //                 + xVal 
+            //                 + "," 
+            //                 + (y(d.date)-aligner+width/8 - bottomMoveUp)
+            //                 + " C" 
+            //                 + xVal 
+            //                 + "," 
+            //                 + (y(d.date)-aligner - 20) 
+            //                 + " " 
+            //                 + (xVal2) 
+            //                 + "," 
+            //                 + yVal 
+            //                 + " " 
+            //                 + (xVal2)
+            //                 + "," 
+            //                 + yVal 
+            //                 ; 
+            //         });
+            //     }
+
+            //     for (let j = 0; j < 2; j++) {
+            //         const classer = ["annotationtext backgroundText", "annotationtext"]
+            //         // console.log(xVal)
+            //         if (xVal < x(x.domain()[0])+140 && d.where != 'population') {
+            //             xVal = x(x.domain()[0])+15
+            //         }
+            //         thisSvg
+            //             .append("text")
+            //             .datum(data[d.timelocation])
+            //             .attr("class",function(){
+            //                 return classer[j]
+            //             })
+            //             .attr("id", function(d){
+            //                 if (j == 0){
+            //                     return "backgroundAnnotationtext" + d.year
+            //                 } else {
+            //                     return "annotationtext" + d.year                          
+            //                 }
+            //             })
+            //             .attr("x",0)
+            //             .attr("y",0)
+            //             .attr("dy",0.3)
+            //             .style("opacity",1)
+            //             .attr("transform", function(d) { 
+            //                 return "translate(" 
+            //                     + xVal
+            //                     + "," 
+            //                     + (yVal + textVertical - bottomMoveUp) 
+            //                     + ")"; 
+            //                 })
+            //             .text(theTitle + " " + d.description)
+            //             .style("text-anchor",whichside)
+            //             .call(wrap, wrapVal);
+            //     }
+            
+            // })
+        
+        })
+
+
+        // TOOLTIP IS HERE ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
+
+        // Create a rect on top of the svg area: this rectangle recovers mouse position
+        var focusRect = svg
+            .append('rect')
+            .attr("class", "focusRect")
+            .style("opacity", 0)
+            .style("fill", "#F8F8F8")
+            .style("stroke", "#111")
+            .style("stroke-width","1.5px")
+            .style("pointer-events", "all")
+            .attr('width', "200px")
+            .attr('height', "120px")
+        
+        //create three rectangles that will be displayed behind the numbers on the tooltip
+        var focusRectMigrationNumberBackbox = svg
+            .append('rect')
+            .attr("class", "focusRect")
+            .style("opacity", 0)
+            .style("fill", "#DB8233")
+        var focusRectNaturalNumberBackbox = svg
+            .append('rect')
+            .attr("class", "focusRect")
+            .style("opacity", 0)
+            .style("fill", "#4b76b4")
+        var focusRectPopulationNumberBackbox = svg
+            .append('rect')
+            .attr("class", "focusRect")
+            .style("opacity", 0)
+            .style("fill", "#009988")
+
+        // Create the text that travels along the curve of chart
+        var focusTextYearNumber = svg
+        .append('g')
+        .attr("class", "tooltipTextNode")
+        .append('text')
+            // .attr("class", "backgroundText")
+            .style("opacity", 0)
+            .attr("text-anchor", "right")
+            .attr("alignment-baseline", "center")
+
+        // Create the text that travels along the curve of chart
+        var focusTextMigrationNumber = svg
+        .append('g')
+        .attr("id", "focusTextMigrationNumber")
+        .attr("class", "tooltipTextNode tooltipNumber")
+        .append('text')
+            // .attr("class", "backgroundText")
+            .style("opacity", 0)
+            .style("fill", "#F8F8F8")
+            .attr("text-anchor", "right")
+            .attr("alignment-baseline", "center")
+
+        // Create the text that travels along the curve of chart
+        var focusTextNaturalNumber = svg
+        .append('g')
+        .attr("id", "focusTextNaturalNumber")
+        .attr("class", "tooltipTextNode tooltipNumber")
+        .append('text')
+            // .attr("class", "backgroundText")
+            .style("opacity", 0)
+            .style("fill", "#F8F8F8")
+            .attr("text-anchor", "right")
+            .attr("alignment-baseline", "center")
+
+        // Create the text that travels along the curve of chart
+        var focusTextPopulationNumber = svg
+        .append('g')
+        .attr("id", "focusTextPopulationNumber")
+        .attr("class", "tooltipTextNode tooltipNumber")
+        .append('text')
+            // .attr("class", "backgroundText")
+            .style("opacity", 0)
+            .style("fill", "#F8F8F8")
+            .attr("text-anchor", "right")
+            .attr("alignment-baseline", "center")
+
+        // Create the text that travels along the curve of chart
+        var focusTextYear = svg
+        .append('g')
+        .attr("class", "tooltipTextNode")
+        .append('text')
+            .style("opacity", 0)
+            .attr("text-anchor", "right")
+            .attr("alignment-baseline", "center")
+
+        // Create the text that travels along the curve of chart
+        var focusTextMigration = svg
+        .append('g')
+        .attr("class", "tooltipTextNode")
+        .append('text')
+            .style("opacity", 0)
+            .attr("text-anchor", "right")
+            .attr("alignment-baseline", "center")
+
+        // Create the text that travels along the curve of chart
+        var focusTextNatural = svg
+        .append('g')
+        .attr("class", "tooltipTextNode")
+        .append('text')
+            .style("opacity", 0)
+            .attr("text-anchor", "right")
+            .attr("alignment-baseline", "center")
+
+        // Create the text that travels along the curve of chart
+        var focusTextPopulation = svg
+        .append('g')
+        .attr("class", "tooltipTextNode")
+        .append('text')
+            .style("opacity", 0)
+            .attr("text-anchor", "right")
+            .attr("alignment-baseline", "center")
+
+        // Create a rect on top of the svg area: this rectangle recovers mouse position
+        svg
+        .append('rect')
+        .style("fill", "none")
+        .style("pointer-events", "all")
+        .attr('width', width)
+        .attr('height', height)
+        .on('mouseover', mouseover)
+        .on('mousemove', mousemove)
+        .on('mouseout', mouseout);
+
+        // Create a rect on top of the svg area: this rectangle recovers mouse position
+        svg2
+        .append('rect')
+        .style("fill", "none")
+        .style("pointer-events", "all")
+        .attr('width', width2)
+        .attr('height', height)
+        .on('mouseover', mouseover)
+        .on('mousemove', mousemove)
+        .on('mouseout', mouseout);
+
+
+        // This allows to find the closest X index of the mouse:
+        var bisect = d3.bisector(function(d) { return d.date; }).left;
+
+            // What happens when the mouse move -> show the annotations at the right positions.
+            function mouseover() {
+                focusRect.style("opacity",1)
+                focusLine.style("opacity",1)
+                focusLineB.style("opacity",1)
+                focusRectMigrationNumberBackbox.style("opacity",1)
+                focusRectNaturalNumberBackbox.style("opacity",1)
+                focusRectPopulationNumberBackbox.style("opacity",1)
+                focusTextYearNumber.style("opacity",1)
+                focusTextMigrationNumber.style("opacity",1)
+                focusTextNaturalNumber.style("opacity",1)
+                focusTextPopulationNumber.style("opacity",1)
+                focusTextYear.style("opacity",1)
+                focusTextMigration.style("opacity",1)
+                focusTextNatural.style("opacity",1)
+                focusTextPopulation.style("opacity",1)
+            }
+
+            function mousemove() {
+
+                let leftChartOffset = 0;
+                if (d3.event.pageX < (width * 0.6)) {
+                    leftChartOffset = 250
+                }
+                
+                // recover coordinate we need
+                var x0 = x.invert(d3.mouse(this)[0]);
+                var i = bisect(data, x0, 1);
+                selectedData = data[i]
+
+                focusRect
+                .attr("y", 0)
+                .attr("x", x(selectedData.date) - 230 + leftChartOffset - mobileTextOffset)
+
+                focusLine
+                .attr("x1", x(selectedData.date))
+                .attr("x2", x(selectedData.date))
+                
+                focusLineB
+                .attr("x1", x(selectedData.date))
+                .attr("x2", x(selectedData.date))
+
+                function getBB(d) {
+                    d.bbox = d.node().getBBox()
+                }
+
+                focusTextYearNumber
+                .text(populationApp.formatTime(selectedData.date))
+                .attr("y", 30)
+                .attr("x", x(selectedData.date) - 210 + leftChartOffset - mobileTextOffset)
+                // .attr("x", x(x.domain()[1]) - 210 -mobileTextOffset)
+                // .attr("y", y(selectedData.date) - 10 - leftChartOffset - aligner)
+                // .call(wrap, 200)
+
+                focusTextMigrationNumber
+                .text(d3.format(",")(selectedData['netMigration' + getThisData]))
+                .attr("y", 60)
+                .attr("x", x(selectedData.date) - 110 + leftChartOffset)
+                .call(getBB);
+                focusRectMigrationNumberBackbox
+                    .attr("y", 60 - 15)
+                    .attr("x", x(selectedData.date) - 115 + leftChartOffset)
+                    .attr('width', focusTextMigrationNumber.bbox.width + 10)
+                    .attr('height', focusTextMigrationNumber.bbox.height + 1)
+                
+                focusTextNaturalNumber
+                .text(d3.format(",")(selectedData['natGrowth' + getThisData]))
+                .attr("x", x(selectedData.date) - 100 + leftChartOffset)
+                .attr("y", 80)
+                .call(getBB);
+                focusRectNaturalNumberBackbox
+                    .attr("x", x(selectedData.date) - 105 + leftChartOffset)
+                    .attr("y", 80 - 15)
+                    .attr('width', focusTextNaturalNumber.bbox.width + 10)
+                    .attr('height', focusTextNaturalNumber.bbox.height + 1)
+                
+                focusTextPopulationNumber
+                .text(d3.format(",")(selectedData['Canada']))
+                .attr("x", x(selectedData.date) - 130 + leftChartOffset)
+                .attr("y", 100)
+                .call(getBB);
+                focusRectPopulationNumberBackbox
+                    .attr("x", x(selectedData.date) - 135 + leftChartOffset)
+                    .attr("y", 100 - 15)
+                    .attr('width', focusTextPopulationNumber.bbox.width + 10)
+                    .attr('height', focusTextPopulationNumber.bbox.height + 1)
+                
+                focusTextYear
+                .text(populationApp.formatTime(selectedData.date))
+                .attr("x", x(selectedData.date) - 210 + leftChartOffset - mobileTextOffset)
+                .attr("y", 30)
+                // .call(wrap, 200)
+
+                focusTextMigration
+                .text("Net migration: ")
+                .attr("x", x(selectedData.date) - 210 + leftChartOffset - mobileTextOffset)
+                .attr("y", 60)
+                // .call(wrap, 200)
+
+                focusTextNatural
+                .text("Natural Growth: ")
+                .attr("x", x(selectedData.date) - 210 + leftChartOffset - mobileTextOffset)
+                .attr("y", 80)
+                // .call(wrap, 200)
+
+                focusTextPopulation
+                .text("Population: ")
+                .attr("x", x(selectedData.date) - 210 + leftChartOffset - mobileTextOffset)
+                .attr("y", 100)
+                // .call(wrap, 200)
+                }
+
+            function mouseout() {
+                focusRect.style("opacity",0)
+                focusLine.style("opacity",0)
+                focusLineB.style("opacity",0)
+                focusRectMigrationNumberBackbox.style("opacity",0)
+                focusRectNaturalNumberBackbox.style("opacity",0)
+                focusRectPopulationNumberBackbox.style("opacity",0)
+                focusTextYearNumber.style("opacity",0)
+                focusTextMigrationNumber.style("opacity",0)
+                focusTextNaturalNumber.style("opacity",0)
+                focusTextPopulationNumber.style("opacity",0)
+                focusTextYear.style("opacity",0)
+                focusTextMigration.style("opacity",0)
+                focusTextNatural.style("opacity",0)
+                focusTextPopulation.style("opacity",0)
+            }
+
+            // TOOLTIP END ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
+
+            populationApp.updateChart = (data, getThisData) => {
+
+                // console.log(data)
+
+                var newData = data;
+
+                var keys = [
+                    "netMigrationcomp"+getThisData,
+                    "netMigration"+getThisData,
+                    "natGrowth"+getThisData,
+                    "natGrowthcomp"+getThisData
+                ]
+
+                y.domain([
+                    d3.max(data, function(d) { return d[keys[1]]})*-1, 
+                    d3.max(data, function(d) { return d[keys[2]]+100000}) 
+                    // d3.max(data, function(d) { return d[keys[1]]}) 
+                ])
+
+                // console.log(d3.max(data, function(d) { return d[keys[1]]}) )
+
+                yAxis.transition()
+                        .duration(1000)
+                        .call(d3.axisLeft(y)
+                            .ticks(ticksA)
+                            .tickSize(-width)
+                            .tickFormat(function (d) {
+                                return d3.format(".0s")(Math.abs(d));
+                            })
+                        )
+                        d3.selectAll(".domain").remove()
+
+                var stackedData = d3.stack()
+                    .offset(d3.stackOffsetSilhouette)
+                    .keys(keys)
+                    (data)
+
+                // Area generator
+                var area = d3.area()
+                    // .curve(d3.curveBasis)
+                    // .curve(d3.curveStepAfter)
+                    .curve(d3.curveStepBefore)
+                    .x(function(d) { 
+                        return x(d.data.date); })
+                    .y0(function(d) { return y(d[0]); })
+                    .y1(function(d) { return y(d[1]); })
+
+                // console.log(newArea())
+                    
+
+                // Show the areas
+                svg
+                .selectAll(".myArea")
+                    .data(stackedData)
+                    .transition()
+                    .duration(1000)
+                    // .attr("d", areaGenerator)
+                    .attr("d", area)
+            }
+
+            
+        // })
+
+
+    }
+
+    
+
+    populationApp.buttonWork = (data) => {
+        d3.selectAll('button').on('click', function(){
+            // console.log(data)
+            let getThisData = this.attributes["data-grab"].value
+            populationApp.updateChart(data, getThisData)
+
+            // populationApp.buildChart(getThisData)
+        })
+    }
+    
+    
+    populationApp.init = () => {
+        d3.csv("./data/can-data-1931-2022-pop-increase-net.csv",function(data) {
+            populationApp.buildChart(data, 'Canada')
+            populationApp.buttonWork(data)
+        })
+    }
+    populationApp.init()
+
+
+    function wrap(text, width) {
+        text.each(function() {
+            var text = d3.select(this),
+                words = text.text().split(/\s+/).reverse(),
+                word,
+                line = [],
+                lineNumber = 0,
+                lineHeight = 1.2, // ems
+                y = text.attr("y"),
+                dy = parseFloat(text.attr("dy")),
+                tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+            while (word = words.pop()) {
+            line.push(word);
+            tspan.text(line.join(" "));
+            if (tspan.node().getComputedTextLength() > width) {
+                line.pop();
+                tspan.text(line.join(" "));
+                line = [word];
+                tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+            }
+            }
+        });
+        }
+    
+
+
+    function resize(){
+        var message = {'resize': 
+                  {
+                    'iframe':'graphic-iframe-sidescroll-test',
+                    'height': document.getElementsByClassName('graphic-sidescroll-test')[0].offsetHeight + 20
+                  }
+                };
+       
+        parent.postMessage(message, "*");
+        // populationApp.buildChart()
+    };
+
+    window.addEventListener('load', function() {
+        resize();
+    });
+
+    window.addEventListener("resize", function(){
+        resize();
+    });
+
+    setTimeout(function() {
+                        resize();
+                    }, 800);
+
+  
+	document.addEventListener("touchstart", function(){}, true);
+
+</script>
+
+<!-- <style>#graphic-iframe-sidescroll-test{padding:0;width:100%;border:0;overflow:hidden;}</style><iframe id="graphic-iframe-sidescroll-test" src="https://misc.thestar.com/interactivegraphic/2023/05-may/00-sidescoll-test/index-sidescroll-test.html" scrolling="no" height="1050" title="embedded content"></iframe> -->
+
+</body>
+</html>

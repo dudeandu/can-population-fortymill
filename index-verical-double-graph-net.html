@@ -25,7 +25,7 @@
         }
 
         #legend-dot-2{
-            background-color: #701C0A;
+            background-color: #C3702A;
         }
 
         #legend-dot-3{
@@ -141,6 +141,13 @@
             .graphic {
                 padding-right: 0;
             }
+            #chart1 {
+                width: 60%;
+            }
+            #chart2 {
+                width: 35%;
+                /* background-color: tomato; */
+            }
         }
 
 </style>
@@ -148,8 +155,8 @@
 <body>
   <div class="graphic-wrapper graphic-sidescroll-test">
     <div class="graphic-top">
-        <h2 class="graphic-top__graphic-hed">Add your heading here</h2>
-        <h3 class="graphic-top__graphic-dek">A longer dek could be required to fully explain what the data is. A longer dek could be required to fully explain what the data is.</h3>
+        <!-- <h2 class="graphic-top__graphic-hed">Add your heading here</h2> -->
+        <!-- <h3 class="graphic-top__graphic-dek">A longer dek could be required to fully explain what the data is. A longer dek could be required to fully explain what the data is.</h3> -->
 
         <div class="graphic-legend">
             <div class="graphic-legend-container">
@@ -181,8 +188,8 @@
    
 
     <div class="graphic-bottom">
-        <p class="graphic-bottom__notetext" id="notetext">* Any further note to explain one aspect of the data could go here.</p>
-        <p class="graphic-bottom__graphic-source" id="source">Source: Stats report</p>
+        <!-- <p class="graphic-bottom__notetext" id="notetext">* Any further note to explain one aspect of the data could go here.</p> -->
+        <p class="graphic-bottom__graphic-source" id="source">Source: Stats Canada</p>
         <p class="graphic-bottom__graphic-byline" id="byline">Toronto Star graphic</p>
     </div>
   </div>
@@ -222,6 +229,9 @@
             ticksA = 4;
             mobileTextOffset = -60
         }
+        if (chartWidth <= 395) {
+            mobileTextOffset = 0
+        }
 
         // set the dimensions and margins of the graph
         var margin = {top: 100, right: 30, bottom: 40, left: 40, leftB: 60},
@@ -229,14 +239,13 @@
             width2 = chartWidth2 - margin.left - margin.right,
             height = 6000 - margin.top - margin.bottom;
 
-        if (chartWidth <= 650) {
-            // set the dimensions and margins of the graph
-            // margin = {top: 100, right: 10, bottom: 40, left: 10, leftB: 30},
-            //     width = chartWidth - margin.left - margin.right,
-            //     width2 = chartWidth2 - margin.left - margin.right,
-            //     height = 6000 - margin.top - margin.bottom;
+        if (chartWidth <= 275) {
+            margin = {top: 100, right: 20, bottom: 40, left: 10, leftB: 30},
+                width = chartWidth - margin.left - margin.right,
+                width2 = chartWidth2 - margin.left - margin.right,
+                height = 6000 - margin.top - margin.bottom;
 
-            // mobileTextOffsetAnnotation = 0
+            mobileTextOffsetAnnotation = 0
         }
 
         // append the svg object to the body of the page
@@ -299,15 +308,31 @@
                 .tickFormat(function (d) {
                     return populationApp.formatTime(d);
                 })
-            svg.append("g")
-                .attr("class","myYaxis")
-                .attr("transform", "translate(0," + (-aligner) + ")")
-                .call(yAxis);
-            svg2.append("g")
-                .attr("class","myYaxis")
-                .attr("transform", "translate(0," + (-aligner) + ")")
-                .call(yAxis);
-            
+            var yAxisR = d3.axisRight()
+            .scale(y)
+            .tickValues(years)
+                .ticks(100)
+                .tickSize(width)
+                .tickFormat(function (d) {
+                    // return populationApp.formatTime(d);
+                    return "'" + d3.timeFormat("%y")(d);
+                })
+
+            if (chartWidth <= 275) { 
+                svg.append("g")
+                    .attr("class","myYaxis invisibleTick")
+                    .attr("transform", "translate(0," + (-aligner) + ")")
+                    .call(yAxisR);
+            } else {
+                svg.append("g")
+                    .attr("class","myYaxis")
+                    .attr("transform", "translate(0," + (-aligner) + ")")
+                    .call(yAxis);
+                svg2.append("g")
+                    .attr("class","myYaxis")
+                    .attr("transform", "translate(0," + (-aligner) + ")")
+                    .call(yAxis);    
+            }
             // Add Y axis
             var x = d3.scaleLinear()
                 .domain([
@@ -359,7 +384,7 @@
             .domain(keys)
             // .range(d3.schemeDark2);
             // .range(['#f8f8f8', '#4b76b4', '#EEAA33','#f8f8f8']);
-            .range(['#f8f8f8', '#4b76b4', '#701C0A','#f8f8f8']);
+            .range(['#f8f8f8', '#4b76b4', '#C3702A','#f8f8f8']);
         
         // Making PATHS HERE ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------    
 
@@ -554,6 +579,32 @@
                 + ")rotate("
                 + 90
                 + ")");
+            
+            var line = svg2.append('g')
+                .attr("class","topLegend")
+                .attr("id", "topLegendArrowPop")
+                .append("line")
+                .attr("x1",x2(5000000))  
+                // .attr("y1",y(data[1].date))  
+                .attr("y1",aligner*1.6)  
+                .attr("x2",x2(18000000))  
+                // .attr("y2",y(data[1].date))
+                .attr("y2",aligner*1.6)
+                .attr("stroke","#666")  
+                .attr("stroke-width",2)  
+
+                d3.select("#topLegendArrowPop")
+                    .append("path")
+                    .attr("class", "annotationarrow")
+                    .style("fill", "#666")
+                    .attr("d", d3.symbol().type(d3.symbolTriangle).size(40))
+                    .attr("transform", "translate(" 
+                    + x2(18000000)
+                    + "," 
+                    + aligner*1.6
+                    + ")rotate("
+                    + 90
+                    + ")");
              
         svg.append('g')
             .attr("class","topLegend")
@@ -595,6 +646,25 @@
                 .style("text-anchor","start")
                 .call(wrap, 140);
         
+        svg2.append('g')
+            .attr("class","topLegend")
+            .append("text")
+            .attr("class", "backgroundText")
+                .attr("id", "populationLegendBG")
+                .attr("x",0)
+                .attr("y",0)
+                .attr("dy",0.3)
+                .attr("transform", function(d) { 
+                    return "translate(" 
+                        + x2(0)
+                        + "," 
+                        + aligner 
+                        + ")"; 
+                    })
+                .text("Canadian Population")
+                .style("text-anchor","start")
+                .call(wrap, 140);
+        
         svg.append('g')
             .attr("class","topLegend")
             .append("text")
@@ -628,6 +698,24 @@
                         + ")"; 
                     })
                 .text("Net migration")
+                .style("text-anchor","start")
+                .call(wrap, 140);
+        
+        svg2.append('g')
+            .attr("class","topLegend")
+            .append("text")
+                .attr("id", "populationLegend")
+                .attr("x",0)
+                .attr("y",0)
+                .attr("dy",0.3)
+                .attr("transform", function(d) { 
+                    return "translate(" 
+                        + x2(0)
+                        + "," 
+                        + aligner 
+                        + ")"; 
+                    })
+                .text("Canadian Population")
                 .style("text-anchor","start")
                 .call(wrap, 140);
 
@@ -699,7 +787,8 @@
                     }
 
                     if (chartWidth <= 495) {
-                        whichside = "end";
+                        whichside = "start";
+                        mobileTextOffsetAnnotation = 0
                         sidecomp = 0;
                         xVal = x(data[d.timelocation]["natGrowth"] * -1) - 10 - width/8
                         // xVal = (x(-20000)-width/8);
@@ -718,10 +807,7 @@
                     xVal = x2(0)
                     xVal2 = x2(40000000)
                     yVal = y(data[d.timelocation].date)-aligner - textVertical
-                    
-                    if (chartWidth <= 495) { 
-                        wrapVal = 100
-                    }
+                
                     
                     if (chartWidth <= 350) { 
                         thisSvg = d3.select("#chart1 svg .annotation")
@@ -734,6 +820,14 @@
                         textVertical = 10 + width/8;
                         bottomMoveUp = 0;
                     }
+                }
+
+                if (chartWidth <= 495) { 
+                        wrapVal = 100
+                    }
+
+                if (chartWidth <= 350) {
+                    textVertical = 0
                 }
 
                 if (d.where == 'netMigration' && chartWidth >= 350 
@@ -786,9 +880,8 @@
                     const classer = ["annotationtext backgroundText", "annotationtext"]
                     // console.log(xVal)
                     if (xVal < x(x.domain()[0])+140 && d.where != 'population') {
-                        xVal = x(x.domain()[0])+140
+                        xVal = x(x.domain()[0])+15
                     }
-                    console.log(xVal)
                     thisSvg
                         .append("text")
                         .datum(data[d.timelocation])
@@ -813,7 +906,7 @@
                                 + (yVal + textVertical - bottomMoveUp) 
                                 + ")"; 
                             })
-                        .text(theTitle + ": " + d.description)
+                        .text(theTitle + " " + d.description)
                         .style("text-anchor",whichside)
                         .call(wrap, wrapVal);
                 }
@@ -842,7 +935,7 @@
             .append('rect')
             .attr("class", "focusRect")
             .style("opacity", 0)
-            .style("fill", "#701C0A")
+            .style("fill", "#C3702A")
         var focusRectNaturalNumberBackbox = svg
             .append('rect')
             .attr("class", "focusRect")
