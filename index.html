@@ -44,10 +44,12 @@
         .graphicFlex-container {
             display: flex;
             flex-wrap: wrap;
+            height: 600px;
         }
 
         #chart1 {
             width: 100%;
+            height: 100%;
         }
         #chart2 {
             width: 100%;
@@ -141,8 +143,8 @@
         <!-- <h3 class="graphic-top__graphic-dek">A longer dek could be required to fully explain what the data is. A longer dek could be required to fully explain what the data is.</h3> -->
 
         <!-- Add 2 buttons -->
-        <button id="Button1" data-grab="Canada" data-yearA="" data-yearB="" data-keys="Canada,allZeros" data-popDisplay="true">Step One</button>
-        <button id="Button2" data-grab="Ontario" data-yearA="" data-yearB="" data-keys="natGrowth,allZeros" data-popDisplay="false">Step Two</button>
+        <button id="Button1" data-grab="Canada" data-yearA="" data-yearB="" data-keys="Canada" data-popDisplay="true">Step One</button>
+        <button id="Button2" data-grab="Canada" data-yearA="" data-yearB="" data-keys="natGrowth" data-popDisplay="false">Step Two</button>
         <button id="Button3" data-grab="Canada" data-yearA="" data-yearB="" data-keys="natGrowth,netMigration" data-popDisplay="false">Step Three</button>
         <button id="Button4" data-grab="Canada" data-yearA="1945" data-yearB="1975" data-keys="natGrowth,netMigration" data-popDisplay="false">Step Four</button>
         <button id="Button4" data-grab="Canada" data-yearA="2015" data-yearB="" data-keys="natGrowth,netMigration" data-popDisplay="false">Step Five</button>
@@ -198,6 +200,7 @@
         d3.select('#chart1').html('')
         // d3.select('#chart2').html('')
         const chartWidth =  parseInt(d3.select('#chart1').style('width'))
+        const chartHeight =  parseInt(d3.select('#chart1').style('height'))
         // const chartWidth2 =  parseInt(d3.select('#chart2').style('width'))
 
         // console.log(chartWidth)
@@ -223,13 +226,13 @@
         var margin = {top: 100, right: 30, bottom: 40, left: 40, leftB: 40},
             width = chartWidth - margin.left - margin.right,
             // width2 = chartWidth2 - margin.left - margin.right,s
-            height = 600 - margin.top - margin.bottom;
+            height = chartHeight - margin.top - margin.bottom;
 
         if (chartWidth <= 275) {
             margin = {top: 100, right: 20, bottom: 40, left: 10, leftB: 30},
                 width = chartWidth - margin.left - margin.right,
                 // width2 = chartWidth2 - margin.left - margin.right,
-                height = 600 - margin.top - margin.bottom;
+                height = chartHeight - margin.top - margin.bottom;
 
             mobileTextOffsetAnnotation = 0
         }
@@ -267,6 +270,7 @@
             d.netMigrationOntario = +d.netMigrationOntario
             d.natGrowthcompOntario = +d.natGrowthcompOntario
             d.netMigrationcompOntario = +d.netMigrationcompOntario
+            d.Canada = +d.Canada
             d.Ontario = +d.Ontario
             d.allZeros = 0
             d.date = populationApp.parseYear(d.year)
@@ -274,6 +278,7 @@
         });
          
         console.log(data)
+        dataLength = data.length
         years.shift()
         
         // List of groups = header of the csv files
@@ -633,8 +638,9 @@
                 focusTextNatural.style("opacity",1)
                 focusTextPopulation.style("opacity",1)
             }
-
+            
             function mousemove() {
+                console.log(dataLength)
 
                 let leftChartOffset = 0;
                 if (d3.event.pageX < (width * 0.6)) {
@@ -646,13 +652,14 @@
                 var i = bisect(data, x0, 1);
                 selectedData = data[i]
 
+
                 focusRect
                 .attr("y", 0)
                 .attr("x", x(selectedData.date) - 230 + leftChartOffset - mobileTextOffset)
 
                 focusLine
-                .attr("x1", x(selectedData.date))
-                .attr("x2", x(selectedData.date))
+                .attr("x1", x(selectedData.date) - (width/dataLength/2))
+                .attr("x2", x(selectedData.date) - (width/dataLength/2))
                 
                 // focusLineB
                 // .attr("x1", x(selectedData.date))
@@ -754,6 +761,10 @@
                 var keys = populationApp.keysBuilder(getTheseKeys, getThisData, dispPopulation)
 
                 data = populationApp.filterDateRange(data, yearA, yearB)
+                dataLength = data.length
+                // console.log(dataLength)
+
+                    // .sort((a, b) => d3.descending(a.date, b.date))
 
                 y.domain([
                     0,
@@ -765,7 +776,7 @@
                 x.domain(d3.extent(data, function(d) { return d.date; }))
 
                 xAxis.transition()
-                        .duration(1000)
+                        .duration(500)
                         .call(d3.axisBottom(x)
                             .ticks(ticksA)
                             .tickFormat(function (d) {
@@ -778,7 +789,7 @@
                 // console.log(d3.max(data, function(d) { return d[keys[1]]}) )
 
                 yAxis.transition()
-                        .duration(1000)
+                        .duration(500)
                         .call(d3.axisLeft(y)
                             .ticks(ticksA)
                             .tickSize(-width)
@@ -794,6 +805,15 @@
                     (data)
 
 
+                // Area generator
+                var areaZero = d3.area()
+                    // .curve(d3.curveBasis)
+                    // .curve(d3.curveStepAfter)
+                    .curve(d3.curveStepBefore)
+                    .x(function(d) { 
+                        return x(d.data.date); })
+                    .y0(function(d) { return y(0); })
+                    .y1(function(d) { return y(0); })
                 // Area generator
                 var area = d3.area()
                     // .curve(d3.curveBasis)
@@ -812,13 +832,25 @@
                 // .merge()
                 .selectAll(".myArea")
                     .data(stackedData)
-                    // .enter()
+                    // .style("opacity", 0)
+                    .style("fill", function(d) { return color(d.key); })
+                    // .attr("d", areaZero)
                     .transition()
+                    // .delay(100)
                     .duration(1000)
+                    .attr("d", area)
+                    // .enter()
+                    // .transition()
+                    // .duration(300)
+                    // .style("opacity", 1)
                     // .attr("d", areaGenerator)
                     // .update()
-                    .style("fill", function(d) { return color(d.key); })
-                    .attr("d", area)
+
+                    svg
+                // .merge()
+                .selectAll(".myArea")
+                    .exit()
+                    .remove()
             }
 
             
@@ -836,8 +868,6 @@
             let grabTheseKeys = this.attributes["data-keys"].value.split(",")
             let yearA = this.attributes["data-yearA"].value
             let yearB = this.attributes["data-yearB"].value
-            console.log(yearA);
-            console.log(yearB);
             populationApp.updateChart(data, getThisData, dispPopulation, grabTheseKeys, yearA, yearB)
         })
     }
@@ -851,6 +881,9 @@
             keyArray.forEach(function(d){
                 keysToReturn.push(d + getThisData)
             })
+            if (keyArray.length < 2) {
+                keysToReturn.push("allZeros")
+            }
         }
         return keysToReturn
     }
@@ -876,8 +909,6 @@
         } else {
             yearB = populationApp.parseYear(yearB)
         }
-        console.log(yearA)
-        console.log(yearB)
         return d.filter( function(j){
             if (yearA <= yearB) {
                 return j.date >= yearA && j.date <= yearB
@@ -887,8 +918,10 @@
         })
     }
     
+    var data1, dataLength;
     populationApp.init = () => {
         d3.csv("./data/can-data-1931-2022-pop-increase-net.csv",function(data) {
+            data1 = data;
             populationApp.buildChart(data, 'Canada', true, ["Canada","allZeros"])
             populationApp.buttonWork(data)
         })
