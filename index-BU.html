@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Toronto Star graphic template</title>
+    <link rel="stylesheet" href="https://misc.thestar.com/interactivegraphic/assets/style.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"> 
+    
+
+    <!-- Load d3.js & color scale-->
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+
+<style>
+
+    body {
+        background-color: #1f1f1f;
+    }
+
+    .graphic-legend-text {
+            color: #F8F8F8;
+        }
+
+
+        /* .graphic-wrapper { */
+        /* max-width: 660px; */
+        /* } */
+
+        /*
+        #6C3A0D
+        #A6611A
+        #DFC27D
+        #F5F5F5
+        #80CDC1
+        #018571
+        #01665E 
+        */
+
+        #legend-dot-1{
+            background-color: #A6611A;
+        }
+
+        #legend-dot-2{
+            background-color: #018571;
+        }
+
+        #legend-dot-3{
+            background-color: #0077BB;
+        }
+
+        .graphicFlex-container {
+            display: flex;
+            flex-wrap: wrap;
+            height: 600px;
+        }
+
+        #chart1 {
+            width: 100%;
+            height: 100%;
+        }
+        #chart2 {
+            width: 100%;
+            /* background-color: tomato; */
+        }
+
+        svg {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            color: #F8F8F8;
+        }
+
+
+
+        .natGrowthcomp,
+        .netMigrationcomp {
+            display: none;
+        }
+
+        svg .tick line{
+            opacity: 0.25;
+            stroke: #F8F8F8;
+        }
+
+        .axisColour text {
+            fill: #F8F8F8;
+        }
+        
+        svg .invisibleTick .tick line{
+            opacity: 0;
+        }
+
+        .annotation {
+            z-index: -5;
+        }
+        
+        .backgroundTick text,
+        .backgroundText {
+            stroke: #F8F8F8;
+            stroke-width: 3px;
+            stroke-opacity: 1;
+            stroke-linejoin: round;
+            stroke-linecap: round;
+        }
+        .backgroundText {
+            stroke-width: 5px;
+        }
+
+        .focusRect {
+            fill: #F8F8F8";
+        }
+
+        .SA_stepper-nav-text {
+            margin-bottom: 0;
+            border: 2px solid hsla(0,0%,100%,.84);
+            padding: 25px 15px 25px 25px;
+            border-radius: 4px;
+            -webkit-backdrop-filter: blur(7px);
+            backdrop-filter: blur(7px);
+            background: rgba(31,31,31,.5);
+            max-height: calc(100vh - 112px);
+            -webkit-backdrop-filter: blur(5px);
+            backdrop-filter: blur(5px);
+            color: #F8F8F8;
+        }
+
+        @media (max-width: 1040px) {
+            .graphic {
+                padding-right: 18px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            #chart1 {
+                width: 100%;
+            }
+            #chart2 {
+                width: 100%;
+                /* background-color: tomato; */
+            }
+            .annotationtext {
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 550px) {
+            .backgroundText {
+                stroke-width: 8px;
+            }
+        }
+
+        @media (max-width: 450px) {
+            
+            .graphic {
+                padding-right: 0;
+            }
+        }
+
+</style>
+</head>
+<body>
+  <div class="graphic-wrapper graphic-sidescroll-test">
+    <div class="graphic-top">
+        <!-- <h2 class="graphic-top__graphic-hed">Add your heading here</h2> -->
+        <!-- <h3 class="graphic-top__graphic-dek">A longer dek could be required to fully explain what the data is. A longer dek could be required to fully explain what the data is.</h3> -->
+
+        <!-- Add 2 buttons -->
+        <button id="Button1" data-grab="Canada" data-yearA="" data-yearB="" data-keys="Canada" data-popDisplay="true">Step One</button>
+        <button id="Button2" data-grab="Canada" data-yearA="" data-yearB="" data-keys="natGrowth" data-popDisplay="false">Step Two</button>
+        <button id="Button3" data-grab="Canada" data-yearA="" data-yearB="" data-keys="natGrowth,netMigration" data-popDisplay="false">Step Three</button>
+        <button id="Button4" data-grab="Canada" data-yearA="1945" data-yearB="1975" data-keys="natGrowth,netMigration" data-popDisplay="false">Step Four</button>
+        <button id="Button5" data-grab="Canada" data-yearA="2015" data-yearB="" data-keys="natGrowth,netMigration" data-popDisplay="false">Step Five</button>
+        <button id="Button6" data-grab="Toronto" data-yearA="2001" data-yearB="" data-keys="natGrowth,netMigration" data-popDisplay="false">Step Six</button>
+        <button id="Button7" data-grab="Peel" data-yearA="2001" data-yearB="" data-keys="natGrowth,netMigration" data-popDisplay="false">Step Seven</button>
+
+        <div class="graphic-legend">
+            <div class="graphic-legend-container">
+                <div class="graphic-legend-dot" id="legend-dot-1"></div><p class="graphic-legend-text">Natural growth</p>
+            </div>
+            <div class="graphic-legend-container">
+                <div class="graphic-legend-dot" id="legend-dot-2"></div><p class="graphic-legend-text">Net migration</p>
+            </div>
+            <div class="graphic-legend-container">
+                <div class="graphic-legend-dot" id="legend-dot-3"></div><p class="graphic-legend-text">Canadian population</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="graphic">
+
+        <div class="graphicFlex-container">
+            <div id="chart1"></div>
+            <!-- <div id="chart2"></div> -->
+        </div>
+        
+    </div>
+
+    <div id="graphic2" class="graphic">
+
+        <div class="SA_stepper-nav-text">
+            <h1 class="SA_nav-title" style="display: block;">Other possible areas of interest</h1>
+            <p class="SA_nav-desc">Include high level stats for each. Newfoundland and has the second lowest % of first generation immigrants (4.3%) and the most population decline in the country (-1.8% since 2016)</p>
+        </div>
+
+    </div>
+
+
+
+   
+
+    <div class="graphic-bottom">
+        <!-- <p class="graphic-bottom__notetext" id="notetext">* Any further note to explain one aspect of the data could go here.</p> -->
+        <p class="graphic-bottom__graphic-source" id="source">Source: Stats Canada</p>
+        <p class="graphic-bottom__graphic-byline" id="byline">Toronto Star graphic</p>
+    </div>
+  </div>
+
+<script>
+
+
+    const populationApp = {}
+
+    populationApp.parseDate = d3.timeParse("%Y-%m-%d");
+    populationApp.parseYear = d3.timeParse("%Y");
+    // populationApp.parseDate = d3.timeParse("%b %Y");
+    // populationApp.formatTime = d3.timeFormat("%b %e, %Y");
+    populationApp.formatTime = d3.timeFormat("%Y");
+    
+    populationApp.buildChart = (data, getThisData, dispPopulation, getTheseKeys) => {
+
+        // CHARTS SETUP HERE ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
+        
+        d3.select('#chart1').html('')
+        // d3.select('#chart2').html('')
+        const chartWidth =  parseInt(d3.select('#chart1').style('width'))
+        const chartHeight =  parseInt(d3.select('#chart1').style('height'))
+        // const chartWidth2 =  parseInt(d3.select('#chart2').style('width'))
+
+        // console.log(chartWidth)
+
+        let years = [];
+
+        let mobileTextOffset = 0
+        let mobileTextOffsetAnnotation = 0
+        let ticksA = 8;
+        let ticksB = 2;
+        let aligner = 30;
+        
+        if (chartWidth <= 695) {
+            //do something here on mobile versions
+            ticksA = 4;
+            mobileTextOffset = -60
+        }
+        if (chartWidth <= 395) {
+            mobileTextOffset = 0
+        }
+
+        // set the dimensions and margins of the graph
+        var margin = {top: 100, right: 30, bottom: 40, left: 40, leftB: 40},
+            width = chartWidth - margin.left - margin.right,
+            // width2 = chartWidth2 - margin.left - margin.right,s
+            height = chartHeight - margin.top - margin.bottom;
+
+        if (chartWidth <= 275) {
+            margin = {top: 100, right: 20, bottom: 40, left: 10, leftB: 30},
+                width = chartWidth - margin.left - margin.right,
+                // width2 = chartWidth2 - margin.left - margin.right,
+                height = chartHeight - margin.top - margin.bottom;
+
+            mobileTextOffsetAnnotation = 0
+        }
+
+        // append the svg object to the body of the page
+        var svg = d3.select("#chart1")
+        .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+            .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+        
+        let canadaData = [], 
+            ontarioData = [];
+
+        data.forEach(function(d) {
+            d.natGrowthCanada = +d.natGrowthCanada
+            d.netMigrationCanada = +d.netMigrationCanada
+            d.natGrowthOntario = +d.natGrowthOntario
+            d.netMigrationOntario = +d.netMigrationOntario
+            d.natGrowthToronto = +d.natGrowthToronto
+            d.netMigrationToronto = +d.netMigrationToronto
+            d.natGrowthPeel = +d.natGrowthPeel
+            d.netMigrationPeel = +d.netMigrationPeel
+            d.Canada = +d.Canada
+            d.Ontario = +d.Ontario
+            d.Toronto = +d.Toronto
+            d.Peel = +d.Peel
+            d.allZeros = 0
+            d.date = populationApp.parseYear(d.year)
+            years.push(populationApp.parseYear(d.year))
+        });
+         
+        console.log(data)
+        dataLength = data.length
+        years.shift()
+        
+        // List of groups = header of the csv files
+        var keys = populationApp.keysBuilder(getTheseKeys, getThisData, true)
+
+        var groups = d3.map(data, function(d){return(d.year)}).keys()
+
+
+        // SETUPS AXIS HERE ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
+            // var x = d3.scaleTime()
+            var x = d3.scaleBand()
+                // .domain(d3.extent(data, function(d) { return d.date; }))
+                .domain(groups)
+                .range([ 0, width ]);
+            var xAxis = svg.append("g")
+                    .attr("class","myXaxis axisColour")
+                    .attr("transform", "translate(0," + (height) + ")")
+                    .call(d3.axisBottom(x)
+                        // .tickValues(years)
+                        .ticks(ticksA)
+                        .tickFormat(function (d) {
+                            return populationApp.formatTime(d);
+                        })
+                    );
+
+            // Add Y axis
+            var y = d3.scaleLinear()
+                .domain([
+                    0,
+                    populationApp.getXMax(dispPopulation, getThisData, data) 
+                ])
+                .range([ height, 0 ]);
+
+            var yAxis = svg.append("g")
+                    .attr("class", "yAxis axisColour")
+                    .attr("transform", "translate(" + 0 + ",0)")
+                    .call(d3.axisLeft(y)
+                        .ticks(ticksA)
+                        .tickSize(-width)
+                        .tickFormat(function (d) {
+                            return d3.format(".0s")(Math.abs(d));
+                        })
+                    );
+
+                d3.selectAll(".domain").remove()
+
+        // color palette
+        var color = d3.scaleOrdinal()
+            .domain(["Canada","natGrowthCanada","netMigrationCanada","natGrowthOntario","netMigrationOntario","natGrowthToronto","netMigrationToronto","natGrowthPeel","netMigrationPeel"])
+            .range(['#0077BB','#A6611A', '#018571','#A6611A', '#018571','#A6611A', '#018571','#A6611A', '#018571']);
+
+        
+        // Making PATHS HERE ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------    
+
+        //stack the data?
+        var stackedData = d3.stack()
+            // .offset(d3.stackOffsetSilhouette)
+            .keys(keys)
+            (data)
+
+            // console.log(stackedData)
+
+        // Area generator
+        var area = d3.area()
+            // .curve(d3.curveBasis)
+            // .curve(d3.curveStepAfter)
+            // .curve(d3.curveStepBefore)
+            .x(function(d) { return x(d.data.date); })
+            .y0(function(d) { return y(d[0]); })
+            .y1(function(d) { return y(d[1]); })
+
+            // console.log(area())
+            
+
+        // Show the bars
+        svg.append("g")
+        .selectAll("g")
+        // Enter in the stack data = loop key per key = group per group
+        .data(stackedData)
+        .enter().append("g")
+            .attr("fill", function(d) { return color(d.key); })
+            .selectAll("rect")
+            // enter a second time = loop subgroup per subgroup to add all rectangles
+            .data(function(d) { return d; })
+            .enter().append("rect")
+            .attr("x", function(d) { return x(d.data.year); })
+            .attr("y", function(d) { return y(d[1]); })
+            .attr("height", function(d) { return y(d[0]) - y(d[1]); })
+            .attr("width", x.bandwidth())
+
+
+
+        // FOCUS LINE HERE --- Needs to be behind the annotations ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------    
+        // Create a rect on top of the svg area: this rectangle recovers mouse position
+        var focusLine = svg
+            .append("line")
+            .attr("class", "positionline")
+            .style("stroke", "#111")
+            .style("stroke-width","1.5px")
+            .style("opacity", 0)
+            .attr("y1", y(y.domain()[0]))
+            .attr("x1", x(0))
+            .attr("y2", y(y.domain()[1]))
+            .attr("x2", x(0));
+
+
+        // TOOLTIP IS HERE ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
+
+        // Create a rect on top of the svg area: this rectangle recovers mouse position
+        var focusRect = svg
+            .append('rect')
+            .attr("class", "focusRect")
+            .style("opacity", 0)
+            .style("fill", "#F8F8F8")
+            .style("stroke", "#111")
+            .style("stroke-width","1.5px")
+            .style("pointer-events", "all")
+            .attr('width', "200px")
+            .attr('height', "120px")
+        
+        //create three rectangles that will be displayed behind the numbers on the tooltip
+        var focusRectMigrationNumberBackbox = svg
+            .append('rect')
+            .attr("class", "focusRect")
+            .style("opacity", 0)
+            .style("fill", "#018571")
+        var focusRectNaturalNumberBackbox = svg
+            .append('rect')
+            .attr("class", "focusRect")
+            .style("opacity", 0)
+            .style("fill", "#A6611A")
+        var focusRectPopulationNumberBackbox = svg
+            .append('rect')
+            .attr("class", "focusRect")
+            .style("opacity", 0)
+            .style("fill", "#0077BB")
+
+        // Create the text that travels along the curve of chart
+        var focusTextYearNumber = svg
+        .append('g')
+        .attr("class", "tooltipTextNode")
+        .append('text')
+            // .attr("class", "backgroundText")
+            .style("opacity", 0)
+            .attr("text-anchor", "right")
+            .attr("alignment-baseline", "center")
+
+        // Create the text that travels along the curve of chart
+        var focusTextMigrationNumber = svg
+        .append('g')
+        .attr("id", "focusTextMigrationNumber")
+        .attr("class", "tooltipTextNode tooltipNumber")
+        .append('text')
+            // .attr("class", "backgroundText")
+            .style("opacity", 0)
+            .style("fill", "#F8F8F8")
+            .attr("text-anchor", "right")
+            .attr("alignment-baseline", "center")
+
+        // Create the text that travels along the curve of chart
+        var focusTextNaturalNumber = svg
+        .append('g')
+        .attr("id", "focusTextNaturalNumber")
+        .attr("class", "tooltipTextNode tooltipNumber")
+        .append('text')
+            // .attr("class", "backgroundText")
+            .style("opacity", 0)
+            .style("fill", "#F8F8F8")
+            .attr("text-anchor", "right")
+            .attr("alignment-baseline", "center")
+
+        // Create the text that travels along the curve of chart
+        var focusTextPopulationNumber = svg
+        .append('g')
+        .attr("id", "focusTextPopulationNumber")
+        .attr("class", "tooltipTextNode tooltipNumber")
+        .append('text')
+            // .attr("class", "backgroundText")
+            .style("opacity", 0)
+            .style("fill", "#F8F8F8")
+            .attr("text-anchor", "right")
+            .attr("alignment-baseline", "center")
+
+        // Create the text that travels along the curve of chart
+        var focusTextYear = svg
+        .append('g')
+        .attr("class", "tooltipTextNode")
+        .append('text')
+            .style("opacity", 0)
+            .attr("text-anchor", "right")
+            .attr("alignment-baseline", "center")
+
+        // Create the text that travels along the curve of chart
+        var focusTextMigration = svg
+        .append('g')
+        .attr("class", "tooltipTextNode")
+        .append('text')
+            .style("opacity", 0)
+            .attr("text-anchor", "right")
+            .attr("alignment-baseline", "center")
+
+        // Create the text that travels along the curve of chart
+        var focusTextNatural = svg
+        .append('g')
+        .attr("class", "tooltipTextNode")
+        .append('text')
+            .style("opacity", 0)
+            .attr("text-anchor", "right")
+            .attr("alignment-baseline", "center")
+
+        // Create the text that travels along the curve of chart
+        var focusTextPopulation = svg
+        .append('g')
+        .attr("class", "tooltipTextNode")
+        .append('text')
+            .style("opacity", 0)
+            .attr("text-anchor", "right")
+            .attr("alignment-baseline", "center")
+
+        // Create a rect on top of the svg area: this rectangle recovers mouse position
+        svg
+        .append('rect')
+        .style("fill", "none")
+        .style("pointer-events", "all")
+        .attr('width', width)
+        .attr('height', height)
+        .on('mouseover', mouseover)
+        .on('mousemove', mousemove)
+        .on('mouseout', mouseout);
+
+            // What happens when the mouse move -> show the annotations at the right positions.
+            function mouseover() {
+                bisect = d3.bisector(function(d) { return d.date; }).left;
+                focusRect.style("opacity",1)
+                focusLine.style("opacity",1)
+                // focusLineB.style("opacity",1)
+                focusRectMigrationNumberBackbox.style("opacity",1)
+                focusRectNaturalNumberBackbox.style("opacity",1)
+                focusRectPopulationNumberBackbox.style("opacity",1)
+                focusTextYearNumber.style("opacity",1)
+                focusTextMigrationNumber.style("opacity",1)
+                focusTextNaturalNumber.style("opacity",1)
+                focusTextPopulationNumber.style("opacity",1)
+                focusTextYear.style("opacity",1)
+                focusTextMigration.style("opacity",1)
+                focusTextNatural.style("opacity",1)
+                focusTextPopulation.style("opacity",1)
+            }
+            
+            function mousemove() {
+                // console.log(dataLength)
+
+                let leftChartOffset = 0;
+                if (d3.event.pageX < (width * 0.6)) {
+                    leftChartOffset = 250
+                }
+                
+                // recover coordinate we need
+                var x0 = x.invert(d3.mouse(this)[0]);
+                var i = bisect(data, x0, 1);
+                selectedData = data[i]
+
+
+                focusRect
+                .attr("y", 0)
+                .attr("x", x(selectedData.date) - 230 + leftChartOffset - mobileTextOffset)
+
+                focusLine
+                .attr("x1", x(selectedData.date) - (width/dataLength/2))
+                .attr("x2", x(selectedData.date) - (width/dataLength/2))
+                
+                // focusLineB
+                // .attr("x1", x(selectedData.date))
+                // .attr("x2", x(selectedData.date))
+
+                function getBB(d) {
+                    d.bbox = d.node().getBBox()
+                }
+
+                focusTextYearNumber
+                .text(populationApp.formatTime(selectedData.date))
+                .attr("y", 30)
+                .attr("x", x(selectedData.date) - 210 + leftChartOffset - mobileTextOffset)
+                // .attr("x", x(x.domain()[1]) - 210 -mobileTextOffset)
+                // .attr("y", y(selectedData.date) - 10 - leftChartOffset - aligner)
+                // .call(wrap, 200)
+
+                focusTextMigrationNumber
+                .text(d3.format(",")(selectedData['netMigration' + getThisData]))
+                .attr("y", 60)
+                .attr("x", x(selectedData.date) - 110 + leftChartOffset)
+                .call(getBB);
+                focusRectMigrationNumberBackbox
+                    .attr("y", 60 - 15)
+                    .attr("x", x(selectedData.date) - 115 + leftChartOffset)
+                    .attr('width', focusTextMigrationNumber.bbox.width + 10)
+                    .attr('height', focusTextMigrationNumber.bbox.height + 1)
+                
+                focusTextNaturalNumber
+                .text(d3.format(",")(selectedData['natGrowth' + getThisData]))
+                .attr("x", x(selectedData.date) - 100 + leftChartOffset)
+                .attr("y", 80)
+                .call(getBB);
+                focusRectNaturalNumberBackbox
+                    .attr("x", x(selectedData.date) - 105 + leftChartOffset)
+                    .attr("y", 80 - 15)
+                    .attr('width', focusTextNaturalNumber.bbox.width + 10)
+                    .attr('height', focusTextNaturalNumber.bbox.height + 1)
+                
+                focusTextPopulationNumber
+                .text(d3.format(",")(selectedData['Canada']))
+                .attr("x", x(selectedData.date) - 130 + leftChartOffset)
+                .attr("y", 100)
+                .call(getBB);
+                focusRectPopulationNumberBackbox
+                    .attr("x", x(selectedData.date) - 135 + leftChartOffset)
+                    .attr("y", 100 - 15)
+                    .attr('width', focusTextPopulationNumber.bbox.width + 10)
+                    .attr('height', focusTextPopulationNumber.bbox.height + 1)
+                
+                focusTextYear
+                .text(populationApp.formatTime(selectedData.date))
+                .attr("x", x(selectedData.date) - 210 + leftChartOffset - mobileTextOffset)
+                .attr("y", 30)
+                // .call(wrap, 200)
+
+                focusTextMigration
+                .text("Net migration: ")
+                .attr("x", x(selectedData.date) - 210 + leftChartOffset - mobileTextOffset)
+                .attr("y", 60)
+                // .call(wrap, 200)
+
+                focusTextNatural
+                .text("Natural Growth: ")
+                .attr("x", x(selectedData.date) - 210 + leftChartOffset - mobileTextOffset)
+                .attr("y", 80)
+                // .call(wrap, 200)
+
+                focusTextPopulation
+                .text("Population: ")
+                .attr("x", x(selectedData.date) - 210 + leftChartOffset - mobileTextOffset)
+                .attr("y", 100)
+                // .call(wrap, 200)
+                }
+
+            function mouseout() {
+                focusRect.style("opacity",0)
+                focusLine.style("opacity",0)
+                // focusLineB.style("opacity",0)
+                focusRectMigrationNumberBackbox.style("opacity",0)
+                focusRectNaturalNumberBackbox.style("opacity",0)
+                focusRectPopulationNumberBackbox.style("opacity",0)
+                focusTextYearNumber.style("opacity",0)
+                focusTextMigrationNumber.style("opacity",0)
+                focusTextNaturalNumber.style("opacity",0)
+                focusTextPopulationNumber.style("opacity",0)
+                focusTextYear.style("opacity",0)
+                focusTextMigration.style("opacity",0)
+                focusTextNatural.style("opacity",0)
+                focusTextPopulation.style("opacity",0)
+            }
+
+            // TOOLTIP END ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
+
+            populationApp.updateChart = (data, getThisData, dispPopulation, getTheseKeys, yearA, yearB) => {
+
+                // console.log(data)
+
+                var keys = populationApp.keysBuilder(getTheseKeys, getThisData, dispPopulation)
+
+                data = populationApp.filterDateRange(data, yearA, yearB)
+
+                let dataFiltered = populationApp.filterColumns(data,keys)
+
+                dataLength = dataFiltered.length
+
+                var groups = d3.map(dataFiltered, function(d){return(d.year)}).keys()
+
+                y.domain([
+                    0,
+                    populationApp.getXMax(dispPopulation, getThisData, data) 
+                ])
+
+                x.domain(groups)
+
+                xAxis.transition()
+                        .duration(500)
+                        .call(d3.axisBottom(x)
+                            .ticks(ticksA)
+                            .tickFormat(function (d) {
+                                return populationApp.formatTime(d);
+                            })
+                        )
+
+                yAxis.transition()
+                        .duration(500)
+                        .call(d3.axisLeft(y)
+                            .ticks(ticksA)
+                            .tickSize(-width)
+                            .tickFormat(function (d) {
+                                return d3.format(".0s")(Math.abs(d));
+                            })
+                        )
+                        d3.selectAll(".domain").remove()
+
+                var stackedData = d3.stack()
+                    // .offset(d3.stackOffsetSilhouette)
+                    .keys(keys)
+                    (dataFiltered)
+
+                    console.log(stackedData)
+                    
+
+                // Show the areas
+                svg
+                // .merge()
+                // .selectAll(".myArea")
+                .data(stackedData)
+                .selectAll("rect")
+                    // .style("opacity", 0)
+                    // .style("fill", function(d) { return color(d.key); })
+                    // .attr("d", areaZero)
+                    // .transition()
+                    // .delay(100)
+                    // .duration(1000)
+                    // .attr("d", area)
+                    // .enter()
+                    // .style("opacity", 1)
+                    // .update()
+                    .data(function(d) { return d; })
+                    .transition()
+                    .duration(300)
+                    .style("fill", function(d) { return color(d.key); })
+                    // .enter().append("rect")
+                    .attr("x", function(d) { return x(d.data.year); })
+                    .attr("y", function(d) { return y(d[1]); })
+                    .attr("height", function(d) { return y(d[0]) - y(d[1]); })
+                    // .attr("width", x.bandwidth())
+
+                    svg
+                // .merge()
+                .selectAll(".rect")
+                    .exit()
+                    .remove()
+            }
+
+            
+        // })
+
+
+    }
+
+    populationApp.buildChartSmall = (data, getThisData, getTheseKeys) => {
+
+        let cityData = populationApp.filterDateRange(data, "2002", "2022")
+
+        let keys = populationApp.keysBuilder(getTheseKeys, getThisData, false)
+
+        cityData = populationApp.filterColumns(cityData,keys)
+        // console.log(cityData)
+
+        d3.select('.SA_stepper-nav-text').html('')
+        d3.select('.SA_stepper-nav-text')
+            .append('svg')
+            .attr("id","chart2")
+
+        const chartWidth = parseInt(d3.select('#chart2').style('width'))
+        const chartHeight = parseInt(d3.select('#chart2').style('height'))
+
+         // set the dimensions and margins of the graph
+         var margin = {top: 10, right: 30, bottom: 20, left: 40, leftB: 40},
+            width = chartWidth - margin.left - margin.right,
+            // width2 = chartWidth2 - margin.left - margin.right,s
+            height = chartHeight - margin.top - margin.bottom;
+
+        // append the svg object to the body of the page
+        var svg = d3.select("#chart2")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+                .attr("transform",
+                    "translate(" + margin.left + "," + margin.top + ")");
+
+       
+        // console.log(subgroups)
+        // List of subgroups = header of the csv files = soil condition here
+        // var subgroups = populationApp.keysBuilder(getTheseKeys, getThisData, true)
+        
+        // List of groups = species here = value of the first column called group -> I show them on the X axis
+        var groups = d3.map(cityData, function(d){return(d.year)}).keys()
+
+
+        let ticksA = 8;
+        if (chartWidth <= 695) {
+                    //do something here on mobile versions
+                    ticksA = 4;
+                    mobileTextOffset = -60
+                }
+        
+        // Add X axis
+        var x = d3.scaleBand()
+            .domain(groups)
+            .range([0, width])
+            // .padding([0.1])
+        svg.append("g")
+        .attr("class", "yAxis axisColour")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x)
+            .ticks(3)
+            // .tickSizeOuter(0)
+            );
+
+        // Add Y axis
+        var y = d3.scaleLinear()
+        // .domain([0, 60])
+        .domain([0, populationApp.getXMax(false, getThisData, cityData) ])
+        .range([ height, 0 ]);
+        svg.append("g")
+        .attr("class", "yAxis axisColour")
+        .call(d3.axisLeft(y)
+                .ticks(ticksA)
+                .tickFormat(function (d) {
+                    return d3.format(".0s")(d);
+                })
+            );
+
+        // color palette = one color per subgroup
+        var color = d3.scaleOrdinal()
+        .domain(keys)
+        .range(['#A6611A', '#018571'])
+
+        //stack the data? --> stack per subgroup
+        var stackedData = d3.stack()
+        .keys(keys)
+        (cityData)
+
+        // Show the bars
+        svg.append("g")
+        .selectAll("g")
+        // Enter in the stack data = loop key per key = group per group
+        .data(stackedData)
+        .enter().append("g")
+            .attr("fill", function(d) { return color(d.key); })
+            .selectAll("rect")
+            // enter a second time = loop subgroup per subgroup to add all rectangles
+            .data(function(d) { return d; })
+            .enter().append("rect")
+            .attr("x", function(d) { return x(d.data.year); })
+            .attr("y", function(d) { return y(d[1]); })
+            .attr("height", function(d) { return y(d[0]) - y(d[1]); })
+            .attr("width",x.bandwidth())
+
+    }
+
+    
+
+    populationApp.buttonWork = (data) => {
+        d3.selectAll('button').on('click', function(){
+            let getThisData = this.attributes["data-grab"].value
+            let dispPopulation = /^true$/i.test(this.attributes["data-popDisplay"].value)
+            let grabTheseKeys = this.attributes["data-keys"].value.split(",")
+            let yearA = this.attributes["data-yearA"].value
+            let yearB = this.attributes["data-yearB"].value
+            populationApp.updateChart(data, getThisData, dispPopulation, grabTheseKeys, yearA, yearB)
+            if (this.id == 'Button6') {
+                populationApp.buildChartSmall(data,getThisData,grabTheseKeys)
+            }
+        })
+    }
+
+    populationApp.keysBuilder = (keyArray, getThisData, dispPopulation) => {
+        let keysToReturn = []
+        if (dispPopulation) {
+            keysToReturn.push(getThisData)
+            keysToReturn.push("allZeros")
+        } else {
+            keyArray.forEach(function(d){
+                keysToReturn.push(d + getThisData)
+            })
+            if (keyArray.length < 2) {
+                keysToReturn.push("allZeros")
+            }
+        }
+        return keysToReturn
+    }
+    
+    populationApp.getXMax = (dispPopulation, getThisData, data) => {
+        let xMax = 0
+        if (dispPopulation) {
+            xMax = 40000000
+        } else {
+            xMax = d3.max(data, function(d) { return d["natGrowth"+getThisData] + d["netMigration"+getThisData]}) 
+        }
+        return xMax
+    }
+
+    populationApp.filterDateRange = (d, yearA, yearB) => {
+        if (yearA == undefined || yearA == "") {
+            yearA = d[0].date
+        } else {
+            yearA = populationApp.parseYear(yearA)
+        }
+        if (yearB == undefined || yearB == "") {
+            yearB = d[d.length-1].date
+        } else {
+            yearB = populationApp.parseYear(yearB)
+        }
+        return d.filter( function(j){
+            if (yearA <= yearB) {
+                return j.date >= yearA && j.date <= yearB
+            } else {
+                return j.date >= yearB && j.date <= yearA
+            }
+        })
+    }
+
+    populationApp.filterColumns = (filterThisArray, newArrayKeys) => {
+        let newArray = []
+        
+        filterThisArray.forEach((d) => {
+            let thisInstance = {}
+            // thisInstance.date = d.date
+            thisInstance.year = d.year
+            
+            newArrayKeys.forEach((j) => {
+                // console.log(`${j}: ${d[j]}`)
+                thisInstance[j] = d[j]
+            })
+            newArray.push(thisInstance)
+        })
+        return newArray
+    }
+    
+    var data1, dataLength, bisect;
+    populationApp.init = () => {
+        d3.csv("./data/can-data-1931-2022-pop-increase-net.csv",function(data) {
+            data1 = data;
+            populationApp.buildChart(data, 'Canada', true, ["Canada","allZeros"])
+            populationApp.buttonWork(data)
+        })
+    }
+    populationApp.init()
+
+
+    function wrap(text, width) {
+        text.each(function() {
+            var text = d3.select(this),
+                words = text.text().split(/\s+/).reverse(),
+                word,
+                line = [],
+                lineNumber = 0,
+                lineHeight = 1.2, // ems
+                y = text.attr("y"),
+                dy = parseFloat(text.attr("dy")),
+                tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+            while (word = words.pop()) {
+            line.push(word);
+            tspan.text(line.join(" "));
+            if (tspan.node().getComputedTextLength() > width) {
+                line.pop();
+                tspan.text(line.join(" "));
+                line = [word];
+                tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+            }
+            }
+        });
+        }
+    
+
+
+    function resize(){
+        var message = {'resize': 
+                  {
+                    'iframe':'graphic-iframe-sidescroll-test',
+                    'height': document.getElementsByClassName('graphic-sidescroll-test')[0].offsetHeight + 20
+                  }
+                };
+       
+        parent.postMessage(message, "*");
+        // populationApp.buildChart()
+    };
+
+    window.addEventListener('load', function() {
+        resize();
+    });
+
+    window.addEventListener("resize", function(){
+        resize();
+    });
+
+    setTimeout(function() {
+                        resize();
+                    }, 800);
+
+  
+	document.addEventListener("touchstart", function(){}, true);
+
+</script>
+
+<!-- <style>#graphic-iframe-sidescroll-test{padding:0;width:100%;border:0;overflow:hidden;}</style><iframe id="graphic-iframe-sidescroll-test" src="https://misc.thestar.com/interactivegraphic/2023/05-may/00-sidescoll-test/index-sidescroll-test.html" scrolling="no" height="1050" title="embedded content"></iframe> -->
+
+</body>
+</html>
